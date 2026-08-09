@@ -76,6 +76,7 @@ header .sub{font-size:12px;opacity:.85;margin-top:2px;}
 .chip{display:inline-flex;align-items:center;gap:6px;background:var(--merah-bg);color:var(--merah);
   border:1px solid var(--merah-garis);border-radius:99px;padding:6px 12px;font-size:13px;font-weight:600;
   margin:4px 6px 2px 0;cursor:pointer;font-family:inherit;}
+.chip-ok{background:var(--ok-bg);color:var(--ok);border-color:var(--ok);}
 .tabs{position:fixed;bottom:0;left:0;right:0;background:var(--putih);border-top:1px solid var(--garis);display:flex;
   padding-bottom:env(safe-area-inset-bottom);z-index:10;}
 .tabs-dalam{display:flex;max-width:560px;margin:0 auto;width:100%;}
@@ -193,7 +194,63 @@ function jadwal(){
   const periode=Math.max(0,Math.floor(dayIndex/hpp));
   return {N,hpp,mulai,dayIndex,periode,d:dayIndex-periode*hpp};
 }
-const halaman=(j,i,d)=>{const p=d*j.N+i+1;return p<=TOTAL?p:null;};
+const batasReguler=(j)=>TOTAL%j.N===0?TOTAL:(j.hpp-1)*j.N;
+const halaman=(j,i,d)=>{const p=d*j.N+i+1;return p<=batasReguler(j)?p:null;};
+function infoLelang(j){
+  if(TOTAL%j.N===0)return [];
+  const rows=(state.lelang||[]).filter(r=>r.period===j.periode);
+  const out=[];
+  for(let p=batasReguler(j)+1;p<=TOTAL;p++){
+    const r=rows.find(x=>x.page===p);
+    out.push({p,klaim:r?r.member_idx:null,done:r?!!r.done:false});
+  }
+  return out;
+}
+async function ambilLelang(p,periode,idx){
+  const r=await fetch(`${SB_URL}/rest/v1/odop_lelang`,{method:"POST",
+    headers:{apikey:SB_KEY,Authorization:`Bearer ${SB_KEY}`,"Content-Type":"application/json"},
+    body:JSON.stringify({period:periode,page:p,member_idx:idx})});
+  if(r.status===409)toast("Halaman ini keburu diambil orang lain");
+  else if(!r.ok)toast("Gagal, coba lagi");
+  else toast("Halaman "+p+" jadi milikmu \u2014 selamat tilawah");
+  await muat();
+}
+async function lelangSelesai(p,periode,val){
+  try{await sb(`odop_lelang?period=eq.${periode}&page=eq.${p}`,{method:"PATCH",body:JSON.stringify({done:val})});}
+  catch{toast("Gagal menyimpan");}
+  await muat();
+}
+async function lepasLelang(p,periode){
+  try{await sb(`odop_lelang?period=eq.${periode}&page=eq.${p}`,{method:"DELETE"});}
+  catch{toast("Gagal");}
+  await muat();
+}
+function kartuLelang(j,modeAdmin){
+  const lel=infoLelang(j);
+  if(!lel.length||j.d<j.hpp-2)return "";
+  let h=`<div class="kartu"><h3>\uD83C\uDFF7\uFE0F Lelang ${lel.length} halaman terakhir</h3>
+    <p class="catatan" style="margin-top:0">Halaman sisa menjelang khatam \u2014 bebas diambil siapa saja yang ingin menambah bacaan. Siapa cepat, dia dapat.</p>`;
+  if(meList.length>1)h+=`<p class="catatan">Ambil atas nama: <select id="selLel" class="input" style="width:auto;padding:6px 10px;display:inline-block">${meList.map(i=>`<option value="${i}">${esc(state.config.members[i])}</option>`).join("")}</select></p>`;
+  lel.forEach(x=>{
+    let aksi;
+    if(x.klaim===null)aksi=`<button class="chip chip-ok aksi-ambil" data-p="${x.p}">Ambil</button>`;
+    else{
+      const milikku=meList.includes(x.klaim);
+      aksi=`<span class="hal">${esc(state.config.members[x.klaim]||"?")}${x.done?" \u2705":""}</span>`+
+        ((milikku||modeAdmin)?`<button class="chip ${x.done?"":"chip-ok"} aksi-lel-cek" data-p="${x.p}" data-v="${x.done?0:1}">${x.done?"Batal \u2713":"Kholas \u2713"}</button>
+          <button class="chip aksi-lepas" data-p="${x.p}">Lepas</button>`:"");
+    }
+    h+=`<div class="baris"><span class="tanda ${x.done?"ok":"no"}">${x.done?"\u2713":"\u2022"}</span>
+      <span class="nama">Hal. ${x.p}<span class="hal-srh">${labelHal(x.p)}</span></span>${aksi}</div>`;
+  });
+  return h+`</div>`;
+}
+function pasangAksiLelang(j){
+  const sel=$("selLel"), isi=$("isi");
+  isi.querySelectorAll(".aksi-ambil").forEach(b=>b.onclick=()=>ambilLelang(Number(b.dataset.p),j.periode,sel?Number(sel.value):meList[0]));
+  isi.querySelectorAll(".aksi-lel-cek").forEach(b=>b.onclick=()=>lelangSelesai(Number(b.dataset.p),j.periode,b.dataset.v==="1"));
+  isi.querySelectorAll(".aksi-lepas").forEach(b=>b.onclick=()=>{if(confirm("Lepas halaman ini biar bisa diambil orang lain?"))lepasLelang(Number(b.dataset.p),j.periode);});
+}
 const sudah=(i,d,p)=>((state.checks[i]||{})[p]||[]).includes(d);
 const tglHari=(j,d)=>j.mulai+(j.periode*j.hpp+d)*MS;
 
@@ -213,16 +270,17 @@ async function sb(path,opsi={}){
 const rpc=(nama,args)=>sb(`rpc/${nama}`,{method:"POST",body:JSON.stringify(args)});
 async function muat(){
   try{
-    const [cfg,rows]=await Promise.all([
+    const [cfg,rows,lel]=await Promise.all([
       sb("odop_config_public?id=eq.1&select=members,start_date"),
-      sb("odop_checks?select=member_idx,period,day")
+      sb("odop_checks?select=member_idx,period,day"),
+      sb("odop_lelang?select=period,page,member_idx,done").catch(()=>[])
     ]);
     const checks={};
     (rows||[]).forEach(r=>{
       checks[r.member_idx]=checks[r.member_idx]||{};
       (checks[r.member_idx][r.period]=checks[r.member_idx][r.period]||[]).push(r.day);
     });
-    state={config:cfg&&cfg[0]?{members:cfg[0].members,startDate:cfg[0].start_date}:null,checks};
+    state={config:cfg&&cfg[0]?{members:cfg[0].members,startDate:cfg[0].start_date}:null,checks,lelang:lel||[]};
   }catch(e){ $("isi").innerHTML=`<p class="muat">Gagal terhubung ke server. Cek koneksi internet lalu muat ulang halaman.</p>`; return; }
   render();
 }
@@ -290,7 +348,14 @@ function teksJatah(j){
     baris+=` ${n}`+(sudah(i,j.d,j.periode)?"\u2705":"");
     t+=baris+"\n";
   });
-  t+=`Jangan lupa membaca surah Al-Fatihah sebelum memulai tilawah\nMohon review dan koreksinya jika ada kesalahan\nJangan lupa laporan kholasnya \u2705 ya`;
+  const lel=infoLelang(j);
+  if(lel.length&&j.d>=j.hpp-2){
+    t+=`\nMenjelang khatam, ${lel.length} halaman terakhir dilelang untuk kelancaran proses khatam \u2014 silakan diambil bagi yang ingin menambah bacaan:\n`;
+    lel.forEach(x=>{
+      t+=`\uD83D\uDCCC ${x.p}. ${labelHal(x.p)}${x.klaim!==null?` \u2014 ${state.config.members[x.klaim]||"?"}${x.done?"\u2705":""}`:""}\n`;
+    });
+  }
+  t+=`\nJangan lupa membaca surah Al-Fatihah sebelum memulai tilawah\nMohon review dan koreksinya jika ada kesalahan\nJangan lupa laporan kholasnya \u2705 ya`;
   return t;
 }
 function teksRekap(j){
@@ -303,6 +368,10 @@ function teksRekap(j){
   const q=[];state.config.members.forEach((n,i)=>{for(let d=0;d<j.d;d++){const p=halaman(j,i,d);
     if(p&&!sudah(i,d,j.periode))q.push(`${n} (hal. ${p})`);}});
   if(q.length)t+=`\n🔴 Halaman terlewat: ${q.join(", ")}`;
+  const lel=infoLelang(j);
+  if(lel.length&&j.d>=j.hpp-2){
+    t+=`\n🏷️ Lelang: `+lel.map(x=>`${x.p} ${x.klaim!==null?(state.config.members[x.klaim]||"?")+(x.done?"✅":" (belum)"):"tersedia"}`).join(", ");
+  }
   return t;
 }
 async function salin(t,label){
@@ -459,6 +528,7 @@ function render(){
       const q=[];
       meList.forEach(idx=>{for(let d=0;d<j.d;d++){const p=halaman(j,idx,d);
         if(p&&!sudah(idx,d,j.periode))q.push({idx,d,p});}});
+      html+=kartuLelang(j,false);
       if(q.length)html+=`<div class="kartu"><h3>Halaman terlewat (${q.length})</h3>`+
         q.map(x=>`<button class="chip aksi-qadha" data-idx="${x.idx}" data-d="${x.d}">Hal. ${x.p} \u00B7 ${labelHal(x.p)}${meList.length>1?` \u00B7 ${esc(state.config.members[x.idx])}`:""} \u00B7 ${fmtP(tglHari(j,x.d))} \u2014 tap jika sudah</button>`).join("")+`</div>`;
     }
@@ -466,11 +536,13 @@ function render(){
     isi.querySelectorAll(".aksi-cek").forEach(b=>b.onclick=()=>toggle(Number(b.dataset.idx),j.d,j.periode));
     isi.querySelectorAll(".aksi-qadha").forEach(c=>c.onclick=()=>toggle(Number(c.dataset.idx),Number(c.dataset.d),j.periode));
     isi.querySelectorAll(".aksi-baca").forEach(b=>b.onclick=()=>bukaBaca(Number(b.dataset.p),Number(b.dataset.idx)));
+    if(!belumMulai)pasangAksiLelang(j);
   }
 
   if(tab==="jamaah"){
     if(belumMulai){isi.innerHTML=`<p class="catatan tengah" style="margin-top:30px">Program dimulai ${fmtT(j.mulai)}.</p>`;return;}
     let total=0;state.config.members.forEach((_,i)=>((state.checks[i]||{})[j.periode]||[]).forEach(d=>{if(halaman(j,i,d))total++;}));
+    infoLelang(j).forEach(x=>{if(x.done)total++;});
     const persen=Math.round(total/TOTAL*100);
     let baris="";state.config.members.forEach((n,i)=>{
       const p=halaman(j,i,j.d);
@@ -488,6 +560,7 @@ function render(){
         <button class="btn btn-hijau" id="btnJatah">📋 Salin jatah hari ini</button>
         <button class="btn btn-ghost" id="btnRekap">📊 Salin rekap hari ini</button>
         <p class="catatan">Tinggal tap, buka WA, paste ke grup. Format sudah rapi.</p></div>
+      ${kartuLelang(j,adminOK)}
       <div class="kartu"><h3>Status hari ini${adminOK?' <span style="color:var(--emas)">· mode admin: tap lingkaran untuk ceklisin</span>':""}</h3>${baris}</div>
       ${q.length?`<div class="kartu"><h3>Halaman terlewat seluruh jamaah (${q.length})</h3>`+
         (adminOK?`<div class="baris"><input type="checkbox" class="cb" id="cbSemua">
@@ -500,6 +573,7 @@ function render(){
         (adminOK?`<button class="btn btn-hijau" id="btnBatch" disabled style="margin-top:12px">Tandai terpilih sudah dibaca</button>`:"")+
         `</div>`:""}
       <button class="btn btn-ghost" id="btnMuat" style="margin-top:14px">Muat ulang data</button>`;
+    pasangAksiLelang(j);
     $("btnJatah").onclick=()=>salin(teksJatah(j),"Jatah harian");
     $("btnRekap").onclick=()=>salin(teksRekap(j),"Rekap");
     $("btnMuat").onclick=()=>muat().then(()=>toast("Data terbaru dimuat"));
