@@ -63,7 +63,8 @@ header .sub{font-size:12px;opacity:.85;margin-top:2px;}
 .baris{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--garis2);font-size:14.5px;}
 .baris:last-child{border-bottom:none;}
 .baris .nama{flex:1;font-weight:500;}
-.baris .hal{font-variant-numeric:tabular-nums;color:var(--redup);font-size:13px;}
+.baris .hal{font-variant-numeric:tabular-nums;color:var(--redup);font-size:13px;text-align:right;}
+.hal-srh{display:block;font-size:11px;color:var(--redup);opacity:.85;}
 .tanda{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;
   font-size:13px;font-weight:800;flex-shrink:0;border:none;font-family:inherit;cursor:default;}
 .tanda.ok{background:var(--ok-bg);color:var(--ok);}
@@ -458,7 +459,7 @@ function render(){
       meList.forEach(idx=>{for(let d=0;d<j.d;d++){const p=halaman(j,idx,d);
         if(p&&!sudah(idx,d,j.periode))q.push({idx,d,p});}});
       if(q.length)html+=`<div class="kartu"><h3>Halaman terlewat (${q.length})</h3>`+
-        q.map(x=>`<button class="chip aksi-qadha" data-idx="${x.idx}" data-d="${x.d}">Hal. ${x.p}${meList.length>1?` \u00B7 ${esc(state.config.members[x.idx])}`:""} \u00B7 ${fmtP(tglHari(j,x.d))} \u2014 tap jika sudah</button>`).join("")+`</div>`;
+        q.map(x=>`<button class="chip aksi-qadha" data-idx="${x.idx}" data-d="${x.d}">Hal. ${x.p} \u00B7 ${labelHal(x.p)}${meList.length>1?` \u00B7 ${esc(state.config.members[x.idx])}`:""} \u00B7 ${fmtP(tglHari(j,x.d))} \u2014 tap jika sudah</button>`).join("")+`</div>`;
     }
     isi.innerHTML=html;
     isi.querySelectorAll(".aksi-cek").forEach(b=>b.onclick=()=>toggle(Number(b.dataset.idx),j.d,j.periode));
@@ -475,7 +476,7 @@ function render(){
       if(!p){baris+=`<div class="baris"><span class="tanda ok">–</span><span class="nama">${esc(n)}</span><span class="hal">tanpa jatah</span></div>`;return;}
       const ok=sudah(i,j.d,j.periode);
       baris+=`<div class="baris"><button class="tanda ${ok?"ok":"no"} ${adminOK?"bisa":""}" ${adminOK?`data-i="${i}"`:""}>${ok?"✓":"•"}</button>
-        <span class="nama">${esc(n)}</span><span class="hal">Hal. ${p}</span></div>`;});
+        <span class="nama">${esc(n)}</span><span class="hal">Hal. ${p}<span class="hal-srh">${labelHal(p)}</span></span></div>`;});
     const q=[];state.config.members.forEach((n,i)=>{for(let d=0;d<j.d;d++){const p=halaman(j,i,d);
       if(p&&!sudah(i,d,j.periode))q.push({n,i,d,p});}});
     isi.innerHTML=`
@@ -490,7 +491,7 @@ function render(){
       ${q.length?`<div class="kartu"><h3>Halaman terlewat seluruh jamaah (${q.length})</h3>`+
         q.slice(0,40).map(x=>`<div class="baris">
           <button class="tanda no ${adminOK?"bisa":""}" ${adminOK?`data-i="${x.i}" data-d="${x.d}"`:""}>•</button>
-          <span class="nama">${esc(x.n)}</span><span class="hal">Hal. ${x.p} · ${fmtP(tglHari(j,x.d))}</span></div>`).join("")+
+          <span class="nama">${esc(x.n)}</span><span class="hal">Hal. ${x.p} · ${fmtP(tglHari(j,x.d))}<span class="hal-srh">${labelHal(x.p)}</span></span></div>`).join("")+
         (q.length>40?`<p class="catatan">…dan ${q.length-40} lainnya.</p>`:"")+`</div>`:""}
       <button class="btn btn-ghost" id="btnMuat" style="margin-top:14px">Muat ulang data</button>`;
     $("btnJatah").onclick=()=>salin(teksJatah(j),"Jatah harian");
