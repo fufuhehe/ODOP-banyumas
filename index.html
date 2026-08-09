@@ -77,6 +77,42 @@ header .sub{font-size:12px;opacity:.85;margin-top:2px;}
   padding:10px 18px;border-radius:99px;font-size:13.5px;font-weight:600;opacity:0;transition:opacity .25s;
   pointer-events:none;z-index:20;white-space:nowrap;}
 .toast.nampak{opacity:1;}
+.pilih-cb{display:flex;align-items:center;gap:12px;cursor:pointer;}
+.pilih-cb input{width:20px;height:20px;accent-color:var(--hijau);flex-shrink:0;}
+.baca-ov{position:fixed;inset:0;background:var(--kertas);z-index:30;display:flex;flex-direction:column;}
+.baca-atas{display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--hijau);color:var(--kertas);
+  border-bottom:3px solid var(--emas);padding-top:calc(10px + env(safe-area-inset-top));}
+.baca-judul{flex:1;font-weight:700;font-size:15px;}
+.ikonbtn{background:rgba(255,255,255,.12);color:var(--kertas);border:none;border-radius:8px;padding:8px 11px;
+  font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;}
+.baca-isi{flex:1;overflow-y:auto;padding:18px 16px 10px;-webkit-overflow-scrolling:touch;}
+.teks-arab{direction:rtl;font-family:'Amiri',serif;font-size:var(--ukA,30px);line-height:2.15;color:var(--tinta);
+  text-align:justify;}
+.no-ayah{display:inline-block;font-size:.62em;color:var(--hijau);border:1.5px solid var(--emas);border-radius:50%;
+  min-width:1.9em;text-align:center;line-height:1.8em;margin:0 .15em;vertical-align:middle;}
+.surah-header{font-family:'Plus Jakarta Sans',sans-serif;direction:ltr;text-align:center;font-size:14px;font-weight:800;
+  color:var(--hijau);border-top:1.5px solid var(--emas);border-bottom:1.5px solid var(--emas);padding:8px 0;margin:14px 0 6px;
+  letter-spacing:.06em;}
+.bismil{text-align:center;font-family:'Amiri',serif;font-size:.85em;margin:2px 0 10px;color:var(--tinta);}
+.baca-bawah{padding:10px 16px calc(12px + env(safe-area-inset-bottom));border-top:1px solid #E7E1D2;background:#fff;}
+.baca-bawah .btn{margin-top:0;}
+.legenda{padding:10px 16px;border-bottom:1px solid #E7E1D2;background:#fff;display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;}
+.legenda span{display:inline-flex;align-items:center;gap:5px;font-weight:600;color:var(--redup);}
+.legenda i{width:12px;height:12px;border-radius:3px;display:inline-block;}
+t.tj{font-style:normal;}
+.tj.ghunnah{color:#E8630A;}
+.tj.qalaqah,.tj.qalqalah{color:#C81E1E;}
+.tj.ikhafa{color:#8C1EC8;}
+.tj.ikhafa_shafawi{color:#C81EAD;}
+.tj.idgham_ghunnah,.tj.idgham_with_ghunnah{color:#0E8F6E;}
+.tj.idgham_wo_ghunnah{color:#3D9C1F;}
+.tj.idgham_shafawi{color:#58A800;}
+.tj.iqlab{color:#0E86C8;}
+.tj.madda_normal{color:#2456E0;}
+.tj.madda_permissible{color:#2456E0;}
+.tj.madda_obligatory{color:#1233A8;}
+.tj.madda_necessary{color:#0A1E78;}
+.tj.ham_wasl,.tj.slnt,.tj.laam_shamsiyah,.tj.idgham_mutajanisayn,.tj.idgham_mutaqaribayn{color:#9AA49E;}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;}}
 </style>
 </head>
@@ -92,10 +128,33 @@ header .sub{font-size:12px;opacity:.85;margin-top:2px;}
   <button class="tab" data-tab="atur"><span class="ikon">⚙️</span>Pengaturan</button>
 </div></nav>
 <div class="toast" id="toast"></div>
+<div id="bacaOv" class="baca-ov" style="display:none">
+  <div class="baca-atas">
+    <button id="bacaTutup" class="ikonbtn" aria-label="Tutup">\u2715</button>
+    <div id="bacaJudul" class="baca-judul">Halaman</div>
+    <button id="fKecil" class="ikonbtn">A-</button>
+    <button id="fBesar" class="ikonbtn">A+</button>
+    <button id="btnLegenda" class="ikonbtn" aria-label="Keterangan warna">\uD83C\uDFA8</button>
+  </div>
+  <div id="legenda" class="legenda" style="display:none">
+    <span><i style="background:#E8630A"></i>Ghunnah</span>
+    <span><i style="background:#8C1EC8"></i>Ikhfa</span>
+    <span><i style="background:#C81EAD"></i>Ikhfa Syafawi</span>
+    <span><i style="background:#0E8F6E"></i>Idgham bigunnah</span>
+    <span><i style="background:#3D9C1F"></i>Idgham bilagunnah</span>
+    <span><i style="background:#58A800"></i>Idgham Syafawi</span>
+    <span><i style="background:#0E86C8"></i>Iqlab</span>
+    <span><i style="background:#C81E1E"></i>Qalqalah</span>
+    <span><i style="background:#2456E0"></i>Mad</span>
+    <span><i style="background:#9AA49E"></i>Tidak dilafalkan</span>
+  </div>
+  <div id="bacaIsi" class="baca-isi"></div>
+  <div class="baca-bawah"><button id="bacaCek" class="btn btn-hijau">Tandai sudah dibaca</button></div>
+</div>
 
 <script>
 const TOTAL=604, MS=86400000;
-let state={config:null,checks:{}}, me=null, tab="hari", adminOK=false;
+let state={config:null,checks:{}}, me=null, meList=[], pilihUlang=false, tab="hari", adminOK=false;
 
 const $=(id)=>document.getElementById(id);
 const esc=(s)=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -231,6 +290,78 @@ async function salin(t,label){
   }
 }
 
+/* ---------- multi-nama ---------- */
+function ambilMeList(){
+  try{
+    const v=JSON.parse(localStorage.getItem("odop-my")||"null");
+    if(Array.isArray(v))return v.filter(i=>Number.isInteger(i)&&i>=0&&i<state.config.members.length);
+  }catch{}
+  const lama=localStorage.getItem("odop-me"); // migrasi format lama
+  if(lama!==null){const n=Number(lama);
+    if(Number.isInteger(n)&&n>=0&&n<state.config.members.length)return [n];}
+  return [];
+}
+
+/* ---------- pembaca mushaf (teks Quran.com, tajwid berwarna) ---------- */
+let bacaCtx=null;
+const arAngka=(n)=>String(n).replace(/\d/g,d=>"\u0660\u0661\u0662\u0663\u0664\u0665\u0666\u0667\u0668\u0669"[d]);
+function tajweedHtml(t){
+  return String(t)
+    .replace(/<tajweed\s+class=["']?([a-z_]+)["']?>/g,'<t class="tj $1">')
+    .replace(/<\/tajweed>/g,"</t>")
+    .replace(/<(?!\/?t\b)[^>]*>/g,"");
+}
+async function ambilHalamanQuran(p){
+  const kunci="qhal:"+p;
+  try{const c=localStorage.getItem(kunci); if(c)return JSON.parse(c);}catch{}
+  let hasil=null;
+  try{
+    const r=await fetch(`https://api.quran.com/api/v4/quran/verses/uthmani_tajweed?page_number=${p}`);
+    if(!r.ok)throw 0;
+    const d=await r.json();
+    hasil={taj:true,ayat:d.verses.map(v=>({k:v.verse_key,t:v.text_uthmani_tajweed}))};
+  }catch{
+    try{
+      const r=await fetch(`https://api.quran.com/api/v4/quran/verses/uthmani?page_number=${p}`);
+      if(!r.ok)throw 0;
+      const d=await r.json();
+      hasil={taj:false,ayat:d.verses.map(v=>({k:v.verse_key,t:esc(v.text_uthmani)}))};
+    }catch{return null;}
+  }
+  try{localStorage.setItem(kunci,JSON.stringify(hasil));}catch{}
+  return hasil;
+}
+function tombolBacaCek(){
+  if(!bacaCtx)return;
+  const j=jadwal(), ok=sudah(bacaCtx.idx,j.d,j.periode);
+  const b=$("bacaCek");
+  b.className=`btn ${ok?"btn-sudah":"btn-hijau"}`;
+  b.textContent=ok?`\u2713 Sudah dibaca (${state.config.members[bacaCtx.idx]})`:`Tandai sudah dibaca (${state.config.members[bacaCtx.idx]})`;
+}
+async function bukaBaca(p,idx){
+  bacaCtx={p,idx};
+  $("bacaOv").style.display="flex";
+  $("bacaJudul").textContent=`Halaman ${p} \u00B7 Juz \u2014`;
+  $("bacaIsi").innerHTML=`<p class="muat">Memuat halaman ${p}\u2026</p>`;
+  tombolBacaCek();
+  const d=await ambilHalamanQuran(p);
+  if(!bacaCtx||bacaCtx.p!==p)return;
+  if(!d){$("bacaIsi").innerHTML=`<p class="muat">Gagal memuat halaman. Cek koneksi internet lalu coba lagi.</p>`;return;}
+  let h="",seg=segmenHal(p);
+  $("bacaJudul").textContent=`Hal. ${p} \u00B7 ${NAMA_SURAH[seg[0].s-1]}`;
+  d.ayat.forEach(v=>{
+    const [s,a]=v.k.split(":").map(Number);
+    if(a===1){
+      h+=`<div class="surah-header">QS.${s} \u00B7 Surah ${NAMA_SURAH[s-1]} \u00B7 ${AYAT_SURAH[s-1]} ayat</div>`;
+      if(s!==9&&s!==1)h+=`<div class="bismil">\u0628\u0650\u0633\u0652\u0645\u0650 \u0671\u0644\u0644\u0651\u064E\u0647\u0650 \u0671\u0644\u0631\u0651\u064E\u062D\u0652\u0645\u064E\u0670\u0646\u0650 \u0671\u0644\u0631\u0651\u064E\u062D\u0650\u064A\u0645\u0650</div>`;
+    }
+    h+=`<span class="ayah">${d.taj?tajweedHtml(v.t):v.t}<span class="no-ayah">${arAngka(a)}</span></span> `;
+  });
+  $("bacaIsi").innerHTML=`<div class="teks-arab">${h}</div>`+
+    (d.taj?"":`<p class="catatan tengah">Mode tanpa warna tajwid (sumber tajwid tidak terjangkau).</p>`);
+  $("bacaIsi").scrollTop=0;
+}
+
 /* ---------- render ---------- */
 function render(){
   const isi=$("isi"), nav=$("navtabs");
@@ -260,44 +391,57 @@ function render(){
     };
     return;
   }
-  const meRaw=localStorage.getItem("odop-me");
-  me=meRaw===null?NaN:Number(meRaw);
-  if(!Number.isInteger(me)||me<0||me>=state.config.members.length){ // pilih nama
+  meList=ambilMeList();
+  if(meList.length===0||pilihUlang){ // pilih nama (boleh lebih dari satu)
     $("subjudul").textContent="Pilih nama kamu dulu ya";
     nav.style.display="none";
-    isi.innerHTML=`<p class="catatan">Pilihan ini disimpan di HP kamu, cukup sekali saja.</p>`+
-      state.config.members.map((n,i)=>`<button class="pilih-nama" data-i="${i}">${esc(n)}</button>`).join("");
-    isi.querySelectorAll(".pilih-nama").forEach(b=>b.onclick=()=>{localStorage.setItem("odop-me",b.dataset.i);render();});
+    isi.innerHTML=`<p class="catatan">Bisa pilih <b>lebih dari satu</b> kalau kamu mengampu beberapa nama — misal sekalian jatah pasangan atau anak. Tersimpan di HP kamu, bisa diubah kapan saja lewat Pengaturan.</p>`+
+      state.config.members.map((n,i)=>`<label class="pilih-nama pilih-cb"><input type="checkbox" data-i="${i}" ${meList.includes(i)?"checked":""}><span>${esc(n)}</span></label>`).join("")+
+      `<button class="btn btn-hijau" id="btnPilihOk" style="margin-top:14px">Lanjut</button>`;
+    $("btnPilihOk").onclick=()=>{
+      const dipilih=[...isi.querySelectorAll("input[type=checkbox]:checked")].map(c=>Number(c.dataset.i));
+      if(!dipilih.length)return toast("Pilih minimal satu nama ya");
+      localStorage.setItem("odop-my",JSON.stringify(dipilih));
+      localStorage.removeItem("odop-me");
+      pilihUlang=false; render();
+    };
     return;
   }
+  me=meList[0];
   const j=jadwal();
   $("subjudul").textContent=`Khatam ke-${j.periode+1} · ${j.N} jamaah · ${j.hpp} hari/khatam`;
   nav.style.display="";
   const belumMulai=j.dayIndex<0;
 
   if(tab==="hari"){
-    let dalam;
-    if(belumMulai) dalam=`<div class="hal-besar" style="font-size:34px;margin-top:14px">Belum dimulai</div>
-      <div class="hal-label">Mulai ${fmtT(j.mulai)}</div>`;
-    else{
-      const p=halaman(j,me,j.d), ok=sudah(me,j.d,j.periode);
-      dalam=p?`<div class="hal-besar">${p}</div>
-        <div class="hal-label">Halaman kamu hari ini, ${esc(state.config.members[me])}</div>
-        <button class="btn ${ok?"btn-sudah":"btn-hijau"}" id="btnBaca" style="margin-top:18px">
-          ${ok?"✓ Alhamdulillah, sudah dibaca":"Tandai sudah dibaca"}</button>`
-        :`<div class="hal-besar" style="font-size:30px;margin-top:14px">Tidak ada jatah hari ini</div>
-        <div class="hal-label">Halaman periode ini sudah habis — sampai jumpa di khatam berikutnya, insya Allah.</div>`;
+    let html="";
+    if(belumMulai){
+      html=`<div class="mushaf"><div class="mushaf-dalam"><div class="basmalah">\uFDFD</div>
+        <div class="eyebrow">${fmtT(Date.now())}</div>
+        <div class="hal-besar" style="font-size:34px;margin-top:14px">Belum dimulai</div>
+        <div class="hal-label">Mulai ${fmtT(j.mulai)}</div></div></div>`;
+    }else{
+      meList.forEach((idx,urutan)=>{
+        const p=halaman(j,idx,j.d), ok=p?sudah(idx,j.d,j.periode):false;
+        const dalam=p?`<div class="hal-besar"${meList.length>1?' style="font-size:54px"':''}>${p}</div>
+          <div class="hal-label">Halaman ${esc(state.config.members[idx])} hari ini</div>
+          <button class="btn ${ok?"btn-sudah":"btn-hijau"} aksi-cek" data-idx="${idx}" style="margin-top:16px">${ok?"\u2713 Alhamdulillah, sudah dibaca":"Tandai sudah dibaca"}</button>
+          <button class="btn btn-ghost aksi-baca" data-p="${p}" data-idx="${idx}">\uD83D\uDCD6 Baca halaman ${p} (tajwid warna)</button>`
+        :`<div class="hal-besar" style="font-size:26px;margin-top:10px">Tidak ada jatah</div>
+          <div class="hal-label">${esc(state.config.members[idx])} — halaman periode ini sudah habis, insya Allah lanjut khatam berikutnya.</div>`;
+        html+=`<div class="mushaf"${urutan?' style="margin-top:14px"':''}><div class="mushaf-dalam">
+          ${urutan===0?`<div class="basmalah">\uFDFD</div><div class="eyebrow">${fmtT(Date.now())}</div>`:""}${dalam}</div></div>`;
+      });
+      const q=[];
+      meList.forEach(idx=>{for(let d=0;d<j.d;d++){const p=halaman(j,idx,d);
+        if(p&&!sudah(idx,d,j.periode))q.push({idx,d,p});}});
+      if(q.length)html+=`<div class="kartu"><h3>Halaman terlewat (${q.length})</h3>`+
+        q.map(x=>`<button class="chip aksi-qadha" data-idx="${x.idx}" data-d="${x.d}">Hal. ${x.p}${meList.length>1?` \u00B7 ${esc(state.config.members[x.idx])}`:""} \u00B7 ${fmtP(tglHari(j,x.d))} \u2014 tap jika sudah</button>`).join("")+`</div>`;
     }
-    let qadha="";
-    if(!belumMulai){
-      const q=[];for(let d=0;d<j.d;d++){const p=halaman(j,me,d);if(p&&!sudah(me,d,j.periode))q.push({d,p});}
-      if(q.length)qadha=`<div class="kartu"><h3>Halaman kamu yang terlewat (${q.length})</h3>`+
-        q.map(x=>`<button class="chip" data-d="${x.d}">Hal. ${x.p} · ${fmtP(tglHari(j,x.d))} — tap jika sudah</button>`).join("")+`</div>`;
-    }
-    isi.innerHTML=`<div class="mushaf"><div class="mushaf-dalam">
-      <div class="basmalah">﷽</div><div class="eyebrow">${fmtT(Date.now())}</div>${dalam}</div></div>${qadha}`;
-    const b=$("btnBaca");if(b)b.onclick=()=>toggle(me,j.d,j.periode);
-    isi.querySelectorAll(".chip").forEach(c=>c.onclick=()=>toggle(me,Number(c.dataset.d),j.periode));
+    isi.innerHTML=html;
+    isi.querySelectorAll(".aksi-cek").forEach(b=>b.onclick=()=>toggle(Number(b.dataset.idx),j.d,j.periode));
+    isi.querySelectorAll(".aksi-qadha").forEach(c=>c.onclick=()=>toggle(Number(c.dataset.idx),Number(c.dataset.d),j.periode));
+    isi.querySelectorAll(".aksi-baca").forEach(b=>b.onclick=()=>bukaBaca(Number(b.dataset.p),Number(b.dataset.idx)));
   }
 
   if(tab==="jamaah"){
@@ -337,15 +481,16 @@ function render(){
   if(tab==="atur"){
     isi.innerHTML=`
       <div class="kartu" style="margin-top:0"><h3>Akun kamu</h3>
-        <p class="catatan" style="margin-top:0">Kamu masuk sebagai <b>${esc(state.config.members[me])}</b>.</p>
-        <button class="btn btn-ghost" id="btnGanti">Ganti nama saya</button></div>
+        <p class="catatan" style="margin-top:0">Kamu mengampu: <b>${meList.map(i=>esc(state.config.members[i])).join(", ")}</b>.</p>
+        <button class="btn btn-ghost" id="btnGanti">Kelola nama saya (tambah/kurangi)</button>
+        <p class="catatan">Contoh: kalau pasangan sedang berhalangan, tambahkan namanya di sini \u2014 jatahnya muncul di HP kamu dan ceklisnya tetap tercatat atas nama dia.</p></div>
       <div class="kartu"><h3>Admin</h3><div id="adminArea">
         ${adminOK?renderAdmin(j):`<input class="input" type="tel" id="pinIn" placeholder="Masukkan PIN admin" maxlength="8">
         <button class="btn btn-ghost" id="btnPin">Buka mode admin</button>
         <p class="catatan">Mode admin: ceklisin anggota lain di tab Jamaah, ubah daftar nama &amp; jadwal.</p>`}
       </div></div>
       <p class="catatan tengah" style="margin-top:18px">Mushaf standar 604 halaman · Semoga istiqamah 🤲</p>`;
-    $("btnGanti").onclick=()=>{localStorage.removeItem("odop-me");render();};
+    $("btnGanti").onclick=()=>{pilihUlang=true;render();};
     const bp=$("btnPin");if(bp)bp.onclick=async()=>{
       try{
         const ok=await rpc("odop_cek_pin",{p_pin:$("pinIn").value});
@@ -384,6 +529,17 @@ document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{
   render();
 });
 
+$("bacaTutup").onclick=()=>{$("bacaOv").style.display="none";bacaCtx=null;render();};
+$("btnLegenda").onclick=()=>{const l=$("legenda");l.style.display=l.style.display==="none"?"flex":"none";};
+let ukA=30;
+$("fBesar").onclick=()=>{ukA=Math.min(44,ukA+3);document.documentElement.style.setProperty("--ukA",ukA+"px");};
+$("fKecil").onclick=()=>{ukA=Math.max(21,ukA-3);document.documentElement.style.setProperty("--ukA",ukA+"px");};
+$("bacaCek").onclick=async()=>{
+  if(!bacaCtx)return;
+  const j=jadwal();
+  await toggle(bacaCtx.idx,j.d,j.periode);
+  tombolBacaCek();
+};
 if("serviceWorker" in navigator)navigator.serviceWorker.register("./sw.js").catch(()=>{});
 muat();
 setInterval(muat,60000); // segarkan tiap menit biar status jamaah kebaru
