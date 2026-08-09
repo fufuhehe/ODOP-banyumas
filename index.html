@@ -13,12 +13,31 @@
 <style>
 :root{
   --hijau:#0F3D2E; --hijau-muda:#1A5A44; --emas:#C9A227; --emas-muda:#E4CB7A;
-  --kertas:#FAF6EC; --kertas-2:#F2EBDA; --tinta:#22302A; --redup:#6E7A72;
-  --merah:#A63D2F; --merah-bg:#F7E8E4; --ok:#1E7A4F; --ok-bg:#E6F2EA;
+  --kertas:#FAF6EC; --kertas-2:#F2EBDA; --kertas3:#FCF9F1; --putih:#FFFFFF;
+  --tinta:#22302A; --redup:#6E7A72; --garis:#E7E1D2; --garis2:#F0EBDD; --garis3:#D8D0BC;
+  --merah:#A63D2F; --merah-bg:#F7E8E4; --merah-garis:#E5C4BB; --ok:#1E7A4F; --ok-bg:#E6F2EA;
+  --aksen:#0F3D2E; --krem:#FAF6EC;
 }
+html[data-tema="gelap"]{
+  --kertas:#111813; --kertas-2:#1B231D; --kertas3:#161E18; --putih:#1A221C;
+  --tinta:#E9E4D6; --redup:#9AA69D; --garis:#2B352E; --garis2:#232C26; --garis3:#3A453D;
+  --merah:#E08977; --merah-bg:#33201B; --merah-garis:#4A2C24; --ok:#6FC796; --ok-bg:#16301F;
+  --aksen:#93CFA8; --emas-muda:#8A7434;
+}
+html[data-tema="gelap"] .tj.madda_normal,html[data-tema="gelap"] .tj.madda_permissible{color:#7E9BFF;}
+html[data-tema="gelap"] .tj.madda_obligatory{color:#96AEFF;}
+html[data-tema="gelap"] .tj.madda_necessary{color:#AAB9FF;}
+html[data-tema="gelap"] .tj.qalaqah,html[data-tema="gelap"] .tj.qalqalah{color:#F07568;}
+html[data-tema="gelap"] .tj.ikhafa{color:#C77DFF;}
+html[data-tema="gelap"] .tj.ikhafa_shafawi{color:#F07BD8;}
+html[data-tema="gelap"] .tj.idgham_ghunnah,html[data-tema="gelap"] .tj.idgham_with_ghunnah{color:#4FC7A0;}
+html[data-tema="gelap"] .tj.idgham_wo_ghunnah{color:#7FD05A;}
+html[data-tema="gelap"] .tj.idgham_shafawi{color:#9BD84A;}
+html[data-tema="gelap"] .tj.iqlab{color:#5FC1F0;}
+html[data-tema="gelap"] .tj.ghunnah{color:#FF9C4A;}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 body{margin:0;background:var(--kertas);font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:var(--tinta);}
-header{background:var(--hijau);color:var(--kertas);padding:14px 18px 12px;border-bottom:3px solid var(--emas);
+header{background:var(--hijau);color:var(--krem);padding:14px 18px 12px;border-bottom:3px solid var(--emas);
   padding-top:calc(14px + env(safe-area-inset-top));}
 header h1{font-family:'Amiri',serif;font-size:22px;margin:0;font-weight:700;}
 header .sub{font-size:12px;opacity:.85;margin-top:2px;}
@@ -26,21 +45,22 @@ header .sub{font-size:12px;opacity:.85;margin-top:2px;}
 .mushaf{background:var(--kertas);border:1.5px solid var(--emas);border-radius:10px;padding:6px;
   box-shadow:0 4px 16px rgba(15,61,46,.10);}
 .mushaf-dalam{border:1px solid var(--emas-muda);border-radius:7px;padding:20px 16px;text-align:center;
-  background:linear-gradient(180deg,#FCF9F1,var(--kertas));}
-.basmalah{font-family:'Amiri',serif;font-size:26px;color:var(--hijau);}
+  background:linear-gradient(180deg,var(--kertas3),var(--kertas));}
+.basmalah{font-family:'Amiri',serif;font-size:26px;color:var(--aksen);}
 .eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--redup);font-weight:600;margin-top:10px;}
-.hal-besar{font-family:'Amiri',serif;font-size:72px;line-height:1;font-weight:700;color:var(--hijau);margin:8px 0 2px;}
+.hal-besar{font-family:'Amiri',serif;font-size:72px;line-height:1;font-weight:700;color:var(--aksen);margin:8px 0 2px;}
 .hal-label{font-size:14px;color:var(--redup);}
+.hal-sub{font-size:13px;color:var(--aksen);font-weight:600;margin-top:4px;}
 .btn{display:block;width:100%;border:none;border-radius:12px;padding:15px;font-family:inherit;font-size:16px;
   font-weight:700;cursor:pointer;margin-top:10px;}
 .btn:active{transform:scale(.98);}
-.btn-hijau{background:var(--hijau);color:var(--kertas);}
+.btn-hijau{background:var(--hijau);color:var(--krem);}
 .btn-sudah{background:var(--ok-bg);color:var(--ok);border:1.5px solid var(--ok);}
-.btn-ghost{background:transparent;color:var(--hijau);border:1.5px solid var(--hijau);font-weight:600;}
+.btn-ghost{background:transparent;color:var(--aksen);border:1.5px solid var(--aksen);font-weight:600;}
 .btn:disabled{opacity:.55;}
-.kartu{background:#fff;border:1px solid #E7E1D2;border-radius:12px;padding:14px 16px;margin-top:14px;}
-.kartu h3{margin:0 0 10px;font-size:14px;font-weight:700;color:var(--hijau);}
-.baris{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #F0EBDD;font-size:14.5px;}
+.kartu{background:var(--putih);border:1px solid var(--garis);border-radius:12px;padding:14px 16px;margin-top:14px;}
+.kartu h3{margin:0 0 10px;font-size:14px;font-weight:700;color:var(--aksen);}
+.baris{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--garis2);font-size:14.5px;}
 .baris:last-child{border-bottom:none;}
 .baris .nama{flex:1;font-weight:500;}
 .baris .hal{font-variant-numeric:tabular-nums;color:var(--redup);font-size:13px;}
@@ -53,50 +73,50 @@ header .sub{font-size:12px;opacity:.85;margin-top:2px;}
 .progress-isi{height:100%;background:linear-gradient(90deg,var(--hijau-muda),var(--hijau));border-radius:99px;transition:width .4s;}
 .progress-txt{display:flex;justify-content:space-between;font-size:12px;color:var(--redup);margin-top:6px;}
 .chip{display:inline-flex;align-items:center;gap:6px;background:var(--merah-bg);color:var(--merah);
-  border:1px solid #E5C4BB;border-radius:99px;padding:6px 12px;font-size:13px;font-weight:600;
+  border:1px solid var(--merah-garis);border-radius:99px;padding:6px 12px;font-size:13px;font-weight:600;
   margin:4px 6px 2px 0;cursor:pointer;font-family:inherit;}
-.tabs{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #E7E1D2;display:flex;
+.tabs{position:fixed;bottom:0;left:0;right:0;background:var(--putih);border-top:1px solid var(--garis);display:flex;
   padding-bottom:env(safe-area-inset-bottom);z-index:10;}
 .tabs-dalam{display:flex;max-width:560px;margin:0 auto;width:100%;}
 .tab{flex:1;padding:11px 4px 9px;text-align:center;background:none;border:none;cursor:pointer;font-family:inherit;
   font-size:11.5px;font-weight:600;color:var(--redup);display:flex;flex-direction:column;gap:3px;align-items:center;}
-.tab.aktif{color:var(--hijau);}
+.tab.aktif{color:var(--aksen);}
 .tab .ikon{font-size:19px;line-height:1;}
-.input,.ta{width:100%;border:1.5px solid #D8D0BC;border-radius:10px;padding:11px 12px;font-family:inherit;
-  font-size:15px;background:#fff;color:var(--tinta);}
+.input,.ta{width:100%;border:1.5px solid var(--garis3);border-radius:10px;padding:11px 12px;font-family:inherit;
+  font-size:15px;background:var(--putih);color:var(--tinta);}
 .ta{min-height:170px;resize:vertical;line-height:1.7;}
 .input:focus,.ta:focus{outline:2px solid var(--emas);border-color:var(--emas);}
-.label{font-size:13px;font-weight:600;margin:14px 0 6px;display:block;color:var(--hijau);}
+.label{font-size:13px;font-weight:600;margin:14px 0 6px;display:block;color:var(--aksen);}
 .catatan{font-size:12.5px;color:var(--redup);line-height:1.55;margin-top:8px;}
-.pilih-nama{display:block;width:100%;text-align:left;background:#fff;border:1px solid #E7E1D2;border-radius:10px;
+.pilih-nama{display:block;width:100%;text-align:left;background:var(--putih);border:1px solid var(--garis);border-radius:10px;
   padding:13px 15px;margin-top:8px;font-family:inherit;font-size:15px;font-weight:500;cursor:pointer;color:var(--tinta);}
 .pilih-nama:active{background:var(--kertas-2);}
 .tengah{text-align:center;}
 .muat{padding:60px 20px;text-align:center;color:var(--redup);font-size:14px;}
-.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--hijau);color:var(--kertas);
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--hijau);color:var(--krem);
   padding:10px 18px;border-radius:99px;font-size:13.5px;font-weight:600;opacity:0;transition:opacity .25s;
   pointer-events:none;z-index:20;white-space:nowrap;}
 .toast.nampak{opacity:1;}
 .pilih-cb{display:flex;align-items:center;gap:12px;cursor:pointer;}
 .pilih-cb input{width:20px;height:20px;accent-color:var(--hijau);flex-shrink:0;}
 .baca-ov{position:fixed;inset:0;background:var(--kertas);z-index:30;display:flex;flex-direction:column;}
-.baca-atas{display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--hijau);color:var(--kertas);
+.baca-atas{display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--hijau);color:var(--krem);
   border-bottom:3px solid var(--emas);padding-top:calc(10px + env(safe-area-inset-top));}
 .baca-judul{flex:1;font-weight:700;font-size:15px;}
-.ikonbtn{background:rgba(255,255,255,.12);color:var(--kertas);border:none;border-radius:8px;padding:8px 11px;
+.ikonbtn{background:rgba(255,255,255,.12);color:var(--krem);border:none;border-radius:8px;padding:8px 11px;
   font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;}
 .baca-isi{flex:1;overflow-y:auto;padding:18px 16px 10px;-webkit-overflow-scrolling:touch;}
 .teks-arab{direction:rtl;font-family:'Amiri',serif;font-size:var(--ukA,30px);line-height:2.15;color:var(--tinta);
   text-align:justify;}
-.no-ayah{display:inline-block;font-size:.62em;color:var(--hijau);border:1.5px solid var(--emas);border-radius:50%;
+.no-ayah{display:inline-block;font-size:.62em;color:var(--aksen);border:1.5px solid var(--emas);border-radius:50%;
   min-width:1.9em;text-align:center;line-height:1.8em;margin:0 .15em;vertical-align:middle;}
 .surah-header{font-family:'Plus Jakarta Sans',sans-serif;direction:ltr;text-align:center;font-size:14px;font-weight:800;
-  color:var(--hijau);border-top:1.5px solid var(--emas);border-bottom:1.5px solid var(--emas);padding:8px 0;margin:14px 0 6px;
+  color:var(--aksen);border-top:1.5px solid var(--emas);border-bottom:1.5px solid var(--emas);padding:8px 0;margin:14px 0 6px;
   letter-spacing:.06em;}
 .bismil{text-align:center;font-family:'Amiri',serif;font-size:.85em;margin:2px 0 10px;color:var(--tinta);}
-.baca-bawah{padding:10px 16px calc(12px + env(safe-area-inset-bottom));border-top:1px solid #E7E1D2;background:#fff;}
+.baca-bawah{padding:10px 16px calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--garis);background:var(--putih);}
 .baca-bawah .btn{margin-top:0;}
-.legenda{padding:10px 16px;border-bottom:1px solid #E7E1D2;background:#fff;display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;}
+.legenda{padding:10px 16px;border-bottom:1px solid var(--garis);background:var(--putih);display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;}
 .legenda span{display:inline-flex;align-items:center;gap:5px;font-weight:600;color:var(--redup);}
 .legenda i{width:12px;height:12px;border-radius:3px;display:inline-block;}
 t.tj{font-style:normal;}
@@ -130,11 +150,11 @@ t.tj{font-style:normal;}
 <div class="toast" id="toast"></div>
 <div id="bacaOv" class="baca-ov" style="display:none">
   <div class="baca-atas">
-    <button id="bacaTutup" class="ikonbtn" aria-label="Tutup">\u2715</button>
+    <button id="bacaTutup" class="ikonbtn" aria-label="Tutup">✕</button>
     <div id="bacaJudul" class="baca-judul">Halaman</div>
     <button id="fKecil" class="ikonbtn">A-</button>
     <button id="fBesar" class="ikonbtn">A+</button>
-    <button id="btnLegenda" class="ikonbtn" aria-label="Keterangan warna">\uD83C\uDFA8</button>
+    <button id="btnLegenda" class="ikonbtn" aria-label="Keterangan warna">🎨</button>
   </div>
   <div id="legenda" class="legenda" style="display:none">
     <span><i style="background:#E8630A"></i>Ghunnah</span>
@@ -237,6 +257,7 @@ function segmenHal(p){
   return out;
 }
 const rentang=(g)=>g.dari===g.sampai?`${g.dari}`:`${g.dari}-${g.sampai}`;
+const labelHal=(p)=>segmenHal(p).map(g=>`${NAMA_SURAH[g.s-1]} ${rentang(g)}`).join(" & ");
 // Angka → kata (utk "hari kesembilanbelas")
 function terbilang(n){
   const u=["","satu","dua","tiga","empat","lima","enam","tujuh","delapan","sembilan","sepuluh","sebelas"];
@@ -341,14 +362,14 @@ function tombolBacaCek(){
 async function bukaBaca(p,idx){
   bacaCtx={p,idx};
   $("bacaOv").style.display="flex";
-  $("bacaJudul").textContent=`Halaman ${p} \u00B7 Juz \u2014`;
+  $("bacaJudul").textContent=`Hal. ${p}`;
   $("bacaIsi").innerHTML=`<p class="muat">Memuat halaman ${p}\u2026</p>`;
   tombolBacaCek();
   const d=await ambilHalamanQuran(p);
   if(!bacaCtx||bacaCtx.p!==p)return;
   if(!d){$("bacaIsi").innerHTML=`<p class="muat">Gagal memuat halaman. Cek koneksi internet lalu coba lagi.</p>`;return;}
-  let h="",seg=segmenHal(p);
-  $("bacaJudul").textContent=`Hal. ${p} \u00B7 ${NAMA_SURAH[seg[0].s-1]}`;
+  let h="";
+  $("bacaJudul").textContent=`Hal. ${p} \u00B7 ${labelHal(p)}`;
   d.ayat.forEach(v=>{
     const [s,a]=v.k.split(":").map(Number);
     if(a===1){
@@ -425,6 +446,7 @@ function render(){
         const p=halaman(j,idx,j.d), ok=p?sudah(idx,j.d,j.periode):false;
         const dalam=p?`<div class="hal-besar"${meList.length>1?' style="font-size:54px"':''}>${p}</div>
           <div class="hal-label">Halaman ${esc(state.config.members[idx])} hari ini</div>
+          <div class="hal-sub">${labelHal(p)}</div>
           <button class="btn ${ok?"btn-sudah":"btn-hijau"} aksi-cek" data-idx="${idx}" style="margin-top:16px">${ok?"\u2713 Alhamdulillah, sudah dibaca":"Tandai sudah dibaca"}</button>
           <button class="btn btn-ghost aksi-baca" data-p="${p}" data-idx="${idx}">\uD83D\uDCD6 Baca halaman ${p} (tajwid warna)</button>`
         :`<div class="hal-besar" style="font-size:26px;margin-top:10px">Tidak ada jatah</div>
@@ -484,6 +506,9 @@ function render(){
         <p class="catatan" style="margin-top:0">Kamu mengampu: <b>${meList.map(i=>esc(state.config.members[i])).join(", ")}</b>.</p>
         <button class="btn btn-ghost" id="btnGanti">Kelola nama saya (tambah/kurangi)</button>
         <p class="catatan">Contoh: kalau pasangan sedang berhalangan, tambahkan namanya di sini \u2014 jatahnya muncul di HP kamu dan ceklisnya tetap tercatat atas nama dia.</p></div>
+      <div class="kartu"><h3>Tampilan</h3>
+        <button class="btn btn-ghost" id="btnTema">${document.documentElement.dataset.tema==="gelap"?"\u2600\uFE0F Ganti ke mode terang":"\uD83C\uDF19 Ganti ke mode gelap"}</button>
+        <p class="catatan">Bawaan mengikuti setelan HP. Pilihan manual tersimpan di HP kamu.</p></div>
       <div class="kartu"><h3>Admin</h3><div id="adminArea">
         ${adminOK?renderAdmin(j):`<input class="input" type="tel" id="pinIn" placeholder="Masukkan PIN admin" maxlength="8">
         <button class="btn btn-ghost" id="btnPin">Buka mode admin</button>
@@ -491,6 +516,11 @@ function render(){
       </div></div>
       <p class="catatan tengah" style="margin-top:18px">Mushaf standar 604 halaman · Semoga istiqamah 🤲</p>`;
     $("btnGanti").onclick=()=>{pilihUlang=true;render();};
+    $("btnTema").onclick=()=>{
+      const gelap=document.documentElement.dataset.tema==="gelap";
+      localStorage.setItem("odop-tema",gelap?"terang":"gelap");
+      pasangTema();render();
+    };
     const bp=$("btnPin");if(bp)bp.onclick=async()=>{
       try{
         const ok=await rpc("odop_cek_pin",{p_pin:$("pinIn").value});
@@ -529,6 +559,16 @@ document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{
   render();
 });
 
+function pasangTema(){
+  const t=localStorage.getItem("odop-tema");
+  const gelap=t?t==="gelap":(window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches);
+  document.documentElement.dataset.tema=gelap?"gelap":"terang";
+  const m=document.querySelector('meta[name="theme-color"]');
+  if(m)m.content=gelap?"#0A2B20":"#0F3D2E";
+}
+pasangTema();
+if(window.matchMedia)matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>{
+  if(!localStorage.getItem("odop-tema"))pasangTema();});
 $("bacaTutup").onclick=()=>{$("bacaOv").style.display="none";bacaCtx=null;render();};
 $("btnLegenda").onclick=()=>{const l=$("legenda");l.style.display=l.style.display==="none"?"flex":"none";};
 let ukA=30;
