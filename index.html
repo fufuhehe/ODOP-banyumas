@@ -100,6 +100,7 @@ header .sub{font-size:12px;opacity:.85;margin-top:2px;}
 .toast.nampak{opacity:1;}
 .pilih-cb{display:flex;align-items:center;gap:12px;cursor:pointer;}
 .pilih-cb input{width:20px;height:20px;accent-color:var(--hijau);flex-shrink:0;}
+.cb{width:20px;height:20px;accent-color:var(--aksen);flex-shrink:0;cursor:pointer;}
 .baca-ov{position:fixed;inset:0;background:var(--kertas);z-index:30;display:flex;flex-direction:column;}
 .baca-atas{display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--hijau);color:var(--krem);
   border-bottom:3px solid var(--emas);padding-top:calc(10px + env(safe-area-inset-top));}
@@ -282,7 +283,7 @@ function teksJatah(j){
     const seg=segmenHal(p);
     if(seg[0].s!==surahAktif){
       surahAktif=seg[0].s;
-      t+=`QS.${surahAktif} Surah ${NAMA_SURAH[surahAktif-1]}, ${AYAT_SURAH[surahAktif-1]} ayat :\n`;
+      t+=`\n*QS.${surahAktif} Surah ${NAMA_SURAH[surahAktif-1]}, ${AYAT_SURAH[surahAktif-1]} ayat:*\n`;
     }
     let baris=`${p}. ${rentang(seg[0])}`;
     for(let k=1;k<seg.length;k++) baris+=` & QS.${seg[k].s} ${NAMA_SURAH[seg[k].s-1]} ${rentang(seg[k])}`;
@@ -489,16 +490,44 @@ function render(){
         <p class="catatan">Tinggal tap, buka WA, paste ke grup. Format sudah rapi.</p></div>
       <div class="kartu"><h3>Status hari ini${adminOK?' <span style="color:var(--emas)">· mode admin: tap lingkaran untuk ceklisin</span>':""}</h3>${baris}</div>
       ${q.length?`<div class="kartu"><h3>Halaman terlewat seluruh jamaah (${q.length})</h3>`+
-        q.slice(0,40).map(x=>`<div class="baris">
+        (adminOK?`<div class="baris"><input type="checkbox" class="cb" id="cbSemua">
+          <span class="nama"><b>Pilih semua ${q.length} halaman</b></span></div>`:"")+
+        q.slice(0,40).map((x,k)=>`<div class="baris">
+          ${adminOK?`<input type="checkbox" class="cb cb-q" data-k="${k}">`:""}
           <button class="tanda no ${adminOK?"bisa":""}" ${adminOK?`data-i="${x.i}" data-d="${x.d}"`:""}>•</button>
           <span class="nama">${esc(x.n)}</span><span class="hal">Hal. ${x.p} · ${fmtP(tglHari(j,x.d))}<span class="hal-srh">${labelHal(x.p)}</span></span></div>`).join("")+
-        (q.length>40?`<p class="catatan">…dan ${q.length-40} lainnya.</p>`:"")+`</div>`:""}
+        (q.length>40?`<p class="catatan">…dan ${q.length-40} lainnya (ikut tertandai jika "Pilih semua" dicentang).</p>`:"")+
+        (adminOK?`<button class="btn btn-hijau" id="btnBatch" disabled style="margin-top:12px">Tandai terpilih sudah dibaca</button>`:"")+
+        `</div>`:""}
       <button class="btn btn-ghost" id="btnMuat" style="margin-top:14px">Muat ulang data</button>`;
     $("btnJatah").onclick=()=>salin(teksJatah(j),"Jatah harian");
     $("btnRekap").onclick=()=>salin(teksRekap(j),"Rekap");
     $("btnMuat").onclick=()=>muat().then(()=>toast("Data terbaru dimuat"));
     if(adminOK)isi.querySelectorAll(".tanda.bisa").forEach(t=>t.onclick=()=>{
       toggle(Number(t.dataset.i),t.dataset.d!==undefined?Number(t.dataset.d):j.d,j.periode);});
+    const btnB=$("btnBatch"), cbA=$("cbSemua");
+    if(btnB&&cbA){
+      const cbs=[...isi.querySelectorAll(".cb-q")];
+      const upd=()=>{
+        const n=cbA.checked?q.length:cbs.filter(c=>c.checked).length;
+        btnB.disabled=!n;
+        btnB.textContent=n?`Tandai ${n} halaman sudah dibaca`:"Tandai terpilih sudah dibaca";
+      };
+      cbA.onchange=()=>{cbs.forEach(c=>c.checked=cbA.checked);upd();};
+      cbs.forEach(c=>c.onchange=()=>{if(!c.checked)cbA.checked=false;upd();});
+      btnB.onclick=async()=>{
+        const target=cbA.checked?q:cbs.filter(c=>c.checked).map(c=>q[Number(c.dataset.k)]);
+        if(!target.length)return;
+        btnB.disabled=true;btnB.textContent="Menyimpan\u2026";
+        try{
+          await sb("odop_checks?on_conflict=member_idx,period,day",{
+            method:"POST",headers:{Prefer:"resolution=ignore-duplicates"},
+            body:JSON.stringify(target.map(x=>({member_idx:x.i,period:j.periode,day:x.d})))});
+          toast(`${target.length} halaman tertandai \u2713`);
+          await muat();
+        }catch{toast("Gagal menyimpan, coba lagi");upd();}
+      };
+    }
   }
 
   if(tab==="atur"){
