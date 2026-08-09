@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ODOP Keluarga</title>
+<meta name="theme-color" content="#0F3D2E">
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" href="./icon-192.png">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --hijau:#0F3D2E; --hijau-muda:#1A5A44; --emas:#C9A227; --emas-muda:#E4CB7A;
+  --kertas:#FAF6EC; --kertas-2:#F2EBDA; --tinta:#22302A; --redup:#6E7A72;
+  --merah:#A63D2F; --merah-bg:#F7E8E4; --ok:#1E7A4F; --ok-bg:#E6F2EA;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{margin:0;background:var(--kertas);font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:var(--tinta);}
+header{background:var(--hijau);color:var(--kertas);padding:14px 18px 12px;border-bottom:3px solid var(--emas);
+  padding-top:calc(14px + env(safe-area-inset-top));}
+header h1{font-family:'Amiri',serif;font-size:22px;margin:0;font-weight:700;}
+header .sub{font-size:12px;opacity:.85;margin-top:2px;}
+.wrap{max-width:560px;margin:0 auto;padding:16px 16px 95px;}
+.mushaf{background:var(--kertas);border:1.5px solid var(--emas);border-radius:10px;padding:6px;
+  box-shadow:0 4px 16px rgba(15,61,46,.10);}
+.mushaf-dalam{border:1px solid var(--emas-muda);border-radius:7px;padding:20px 16px;text-align:center;
+  background:linear-gradient(180deg,#FCF9F1,var(--kertas));}
+.basmalah{font-family:'Amiri',serif;font-size:26px;color:var(--hijau);}
+.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--redup);font-weight:600;margin-top:10px;}
+.hal-besar{font-family:'Amiri',serif;font-size:72px;line-height:1;font-weight:700;color:var(--hijau);margin:8px 0 2px;}
+.hal-label{font-size:14px;color:var(--redup);}
+.btn{display:block;width:100%;border:none;border-radius:12px;padding:15px;font-family:inherit;font-size:16px;
+  font-weight:700;cursor:pointer;margin-top:10px;}
+.btn:active{transform:scale(.98);}
+.btn-hijau{background:var(--hijau);color:var(--kertas);}
+.btn-sudah{background:var(--ok-bg);color:var(--ok);border:1.5px solid var(--ok);}
+.btn-ghost{background:transparent;color:var(--hijau);border:1.5px solid var(--hijau);font-weight:600;}
+.btn:disabled{opacity:.55;}
+.kartu{background:#fff;border:1px solid #E7E1D2;border-radius:12px;padding:14px 16px;margin-top:14px;}
+.kartu h3{margin:0 0 10px;font-size:14px;font-weight:700;color:var(--hijau);}
+.baris{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #F0EBDD;font-size:14.5px;}
+.baris:last-child{border-bottom:none;}
+.baris .nama{flex:1;font-weight:500;}
+.baris .hal{font-variant-numeric:tabular-nums;color:var(--redup);font-size:13px;}
+.tanda{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:800;flex-shrink:0;border:none;font-family:inherit;cursor:default;}
+.tanda.ok{background:var(--ok-bg);color:var(--ok);}
+.tanda.no{background:var(--merah-bg);color:var(--merah);}
+.tanda.bisa{cursor:pointer;box-shadow:0 0 0 2px var(--emas-muda);}
+.progress-shell{background:var(--kertas-2);border-radius:99px;height:12px;overflow:hidden;margin-top:6px;}
+.progress-isi{height:100%;background:linear-gradient(90deg,var(--hijau-muda),var(--hijau));border-radius:99px;transition:width .4s;}
+.progress-txt{display:flex;justify-content:space-between;font-size:12px;color:var(--redup);margin-top:6px;}
+.chip{display:inline-flex;align-items:center;gap:6px;background:var(--merah-bg);color:var(--merah);
+  border:1px solid #E5C4BB;border-radius:99px;padding:6px 12px;font-size:13px;font-weight:600;
+  margin:4px 6px 2px 0;cursor:pointer;font-family:inherit;}
+.tabs{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #E7E1D2;display:flex;
+  padding-bottom:env(safe-area-inset-bottom);z-index:10;}
+.tabs-dalam{display:flex;max-width:560px;margin:0 auto;width:100%;}
+.tab{flex:1;padding:11px 4px 9px;text-align:center;background:none;border:none;cursor:pointer;font-family:inherit;
+  font-size:11.5px;font-weight:600;color:var(--redup);display:flex;flex-direction:column;gap:3px;align-items:center;}
+.tab.aktif{color:var(--hijau);}
+.tab .ikon{font-size:19px;line-height:1;}
+.input,.ta{width:100%;border:1.5px solid #D8D0BC;border-radius:10px;padding:11px 12px;font-family:inherit;
+  font-size:15px;background:#fff;color:var(--tinta);}
+.ta{min-height:170px;resize:vertical;line-height:1.7;}
+.input:focus,.ta:focus{outline:2px solid var(--emas);border-color:var(--emas);}
+.label{font-size:13px;font-weight:600;margin:14px 0 6px;display:block;color:var(--hijau);}
+.catatan{font-size:12.5px;color:var(--redup);line-height:1.55;margin-top:8px;}
+.pilih-nama{display:block;width:100%;text-align:left;background:#fff;border:1px solid #E7E1D2;border-radius:10px;
+  padding:13px 15px;margin-top:8px;font-family:inherit;font-size:15px;font-weight:500;cursor:pointer;color:var(--tinta);}
+.pilih-nama:active{background:var(--kertas-2);}
+.tengah{text-align:center;}
+.muat{padding:60px 20px;text-align:center;color:var(--redup);font-size:14px;}
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--hijau);color:var(--kertas);
+  padding:10px 18px;border-radius:99px;font-size:13.5px;font-weight:600;opacity:0;transition:opacity .25s;
+  pointer-events:none;z-index:20;white-space:nowrap;}
+.toast.nampak{opacity:1;}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;}}
+</style>
+</head>
+<body>
+<header>
+  <h1>One Day One Page — Keluarga</h1>
+  <div class="sub" id="subjudul">Memuat…</div>
+</header>
+<div class="wrap" id="isi"><div class="muat">Memuat data jamaah…</div></div>
+<nav class="tabs" id="navtabs" style="display:none"><div class="tabs-dalam">
+  <button class="tab aktif" data-tab="hari"><span class="ikon">📖</span>Hari ini</button>
+  <button class="tab" data-tab="jamaah"><span class="ikon">🕌</span>Jamaah</button>
+  <button class="tab" data-tab="atur"><span class="ikon">⚙️</span>Pengaturan</button>
+</div></nav>
+<div class="toast" id="toast"></div>
+
+<script>
+const TOTAL=604, MS=86400000;
+let state={config:null,checks:{}}, me=null, tab="hari", adminOK=false;
+
+const $=(id)=>document.getElementById(id);
+const esc=(s)=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const midnight=(t)=>{const x=new Date(t);x.setHours(0,0,0,0);return x.getTime();};
+const fmtT=(ms)=>new Date(ms).toLocaleDateString("id-ID",{weekday:"long",day:"numeric",month:"long",year:"numeric"});
+const fmtP=(ms)=>new Date(ms).toLocaleDateString("id-ID",{day:"numeric",month:"short"});
+function toast(t){const e=$("toast");e.textContent=t;e.classList.add("nampak");setTimeout(()=>e.classList.remove("nampak"),1800);}
+
+function jadwal(){
+  const N=state.config.members.length;
+  const hpp=Math.ceil(TOTAL/N);
+  const mulai=midnight(state.config.startDate+"T00:00:00");
+  const dayIndex=Math.floor((midnight(Date.now())-mulai)/MS);
+  const periode=Math.max(0,Math.floor(dayIndex/hpp));
+  return {N,hpp,mulai,dayIndex,periode,d:dayIndex-periode*hpp};
+}
+const halaman=(j,i,d)=>{const p=d*j.N+i+1;return p<=TOTAL?p:null;};
+const sudah=(i,d,p)=>((state.checks[i]||{})[p]||[]).includes(d);
+const tglHari=(j,d)=>j.mulai+(j.periode*j.hpp+d)*MS;
+
+/* ---- koneksi Supabase ---- */
+const SB_URL="https://wwgqgsjyaodxfuhjwksj.supabase.co";
+const SB_KEY="sb_publishable_wDYr46FfxvTH9IzGE-7w5Q_wkiYxXbu";
+async function sb(path,opsi={}){
+  const r=await fetch(`${SB_URL}/rest/v1/${path}`,{
+    ...opsi,
+    headers:{apikey:SB_KEY,Authorization:`Bearer ${SB_KEY}`,
+      "Content-Type":"application/json",...(opsi.headers||{})}
+  });
+  if(!r.ok&&r.status!==409)throw new Error(`Supabase ${r.status}`);
+  const t=await r.text();
+  return t?JSON.parse(t):null;
+}
+const rpc=(nama,args)=>sb(`rpc/${nama}`,{method:"POST",body:JSON.stringify(args)});
+async function muat(){
+  try{
+    const [cfg,rows]=await Promise.all([
+      sb("odop_config_public?id=eq.1&select=members,start_date"),
+      sb("odop_checks?select=member_idx,period,day")
+    ]);
+    const checks={};
+    (rows||[]).forEach(r=>{
+      checks[r.member_idx]=checks[r.member_idx]||{};
+      (checks[r.member_idx][r.period]=checks[r.member_idx][r.period]||[]).push(r.day);
+    });
+    state={config:cfg&&cfg[0]?{members:cfg[0].members,startDate:cfg[0].start_date}:null,checks};
+  }catch(e){ $("isi").innerHTML=`<p class="muat">Gagal terhubung ke server. Cek koneksi internet lalu muat ulang halaman.</p>`; return; }
+  render();
+}
+
+async function toggle(i,d,p){
+  const done=!sudah(i,d,p);
+  state.checks[i]=state.checks[i]||{}; // optimis
+  const set=new Set(state.checks[i][p]||[]);
+  done?set.add(d):set.delete(d);
+  state.checks[i][p]=[...set].sort((a,b)=>a-b);
+  render();
+  try{
+    if(done) await sb("odop_checks?on_conflict=member_idx,period,day",{
+      method:"POST",headers:{Prefer:"resolution=ignore-duplicates"},
+      body:JSON.stringify({member_idx:i,period:p,day:d})});
+    else await sb(`odop_checks?member_idx=eq.${i}&period=eq.${p}&day=eq.${d}`,{method:"DELETE"});
+  }catch{ toast("Gagal menyimpan, coba lagi"); muat(); }
+}
+
+/* ---------- teks WA ---------- */
+function teksJatah(j){
+  let t=`📖 *ODOP Keluarga* — ${fmtT(Date.now())}\nKhatam ke-${j.periode+1} · Hari ke-${j.d+1} dari ${j.hpp}\n\n`;
+  state.config.members.forEach((n,i)=>{const p=halaman(j,i,j.d);if(p)t+=`${i+1}. ${n} — Hal. ${p}\n`;});
+  t+=`\nJangan lupa ceklis di aplikasi ya. Semoga istiqamah 🤲`;
+  return t;
+}
+function teksRekap(j){
+  const ok=[],belum=[];
+  state.config.members.forEach((n,i)=>{const p=halaman(j,i,j.d);if(!p)return;
+    (sudah(i,j.d,j.periode)?ok:belum).push({n,p});});
+  let t=`📊 *Rekap ODOP* — ${fmtT(Date.now())}\n\n✅ Sudah (${ok.length}): ${ok.map(x=>x.n).join(", ")||"-"}\n`;
+  if(belum.length){t+=`\n⏳ Belum (${belum.length}):\n`;belum.forEach(x=>t+=`• ${x.n} — Hal. ${x.p}\n`);}
+  else t+=`\nAlhamdulillah semua sudah membaca hari ini! 🎉\n`;
+  const q=[];state.config.members.forEach((n,i)=>{for(let d=0;d<j.d;d++){const p=halaman(j,i,d);
+    if(p&&!sudah(i,d,j.periode))q.push(`${n} (hal. ${p})`);}});
+  if(q.length)t+=`\n🔴 Halaman terlewat: ${q.join(", ")}`;
+  return t;
+}
+async function salin(t,label){
+  try{ await navigator.clipboard.writeText(t); toast(label+" tersalin — tinggal paste di WA"); }
+  catch{
+    const ta=document.createElement("textarea");ta.value=t;document.body.appendChild(ta);
+    ta.select();document.execCommand("copy");ta.remove();toast(label+" tersalin");
+  }
+}
+
+/* ---------- render ---------- */
+function render(){
+  const isi=$("isi"), nav=$("navtabs");
+  if(!state.config){ // setup awal
+    $("subjudul").textContent="Setup awal oleh admin — cukup sekali";
+    nav.style.display="none";
+    isi.innerHTML=`
+      <label class="label">Daftar nama jamaah (satu nama per baris)</label>
+      <textarea class="ta" id="namaTxt" placeholder="Ayah&#10;Ibu&#10;Budi&#10;Siti&#10;…"></textarea>
+      <label class="label">Tanggal mulai</label>
+      <input class="input" type="date" id="mulaiTgl">
+      <label class="label">PIN admin (untuk ubah pengaturan nanti)</label>
+      <input class="input" type="tel" id="pinBaru" placeholder="mis. 1234" maxlength="8">
+      <p class="catatan" id="infoHit"></p>
+      <button class="btn btn-hijau" id="btnSetup">Simpan &amp; mulai program</button>`;
+    const d=new Date();$("mulaiTgl").value=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+    $("namaTxt").oninput=()=>{const n=$("namaTxt").value.split("\n").map(s=>s.trim()).filter(Boolean).length;
+      $("infoHit").textContent=n?`${n} jamaah → ${n} halaman/hari → khatam dalam ${Math.ceil(TOTAL/n)} hari, lalu otomatis lanjut khatam berikutnya.`:"";};
+    $("btnSetup").onclick=async()=>{
+      const members=$("namaTxt").value.split("\n").map(s=>s.trim()).filter(Boolean);
+      if(members.length<2)return toast("Minimal 2 nama ya");
+      try{
+        const ok=await rpc("odop_set_config",{p_members:members,p_start_date:$("mulaiTgl").value,
+          p_pin:$("pinBaru").value||"0000",p_pin_lama:null});
+        ok?muat():toast("Program sudah pernah di-setup");
+      }catch{ toast("Gagal, coba lagi"); }
+    };
+    return;
+  }
+  me=Number(localStorage.getItem("odop-me"));
+  if(!Number.isInteger(me)||me<0||me>=state.config.members.length){ // pilih nama
+    $("subjudul").textContent="Pilih nama kamu dulu ya";
+    nav.style.display="none";
+    isi.innerHTML=`<p class="catatan">Pilihan ini disimpan di HP kamu, cukup sekali saja.</p>`+
+      state.config.members.map((n,i)=>`<button class="pilih-nama" data-i="${i}">${esc(n)}</button>`).join("");
+    isi.querySelectorAll(".pilih-nama").forEach(b=>b.onclick=()=>{localStorage.setItem("odop-me",b.dataset.i);render();});
+    return;
+  }
+  const j=jadwal();
+  $("subjudul").textContent=`Khatam ke-${j.periode+1} · ${j.N} jamaah · ${j.hpp} hari/khatam`;
+  nav.style.display="";
+  const belumMulai=j.dayIndex<0;
+
+  if(tab==="hari"){
+    let dalam;
+    if(belumMulai) dalam=`<div class="hal-besar" style="font-size:34px;margin-top:14px">Belum dimulai</div>
+      <div class="hal-label">Mulai ${fmtT(j.mulai)}</div>`;
+    else{
+      const p=halaman(j,me,j.d), ok=sudah(me,j.d,j.periode);
+      dalam=p?`<div class="hal-besar">${p}</div>
+        <div class="hal-label">Halaman kamu hari ini, ${esc(state.config.members[me])}</div>
+        <button class="btn ${ok?"btn-sudah":"btn-hijau"}" id="btnBaca" style="margin-top:18px">
+          ${ok?"✓ Alhamdulillah, sudah dibaca":"Tandai sudah dibaca"}</button>`
+        :`<div class="hal-besar" style="font-size:30px;margin-top:14px">Tidak ada jatah hari ini</div>
+        <div class="hal-label">Halaman periode ini sudah habis — sampai jumpa di khatam berikutnya, insya Allah.</div>`;
+    }
+    let qadha="";
+    if(!belumMulai){
+      const q=[];for(let d=0;d<j.d;d++){const p=halaman(j,me,d);if(p&&!sudah(me,d,j.periode))q.push({d,p});}
+      if(q.length)qadha=`<div class="kartu"><h3>Halaman kamu yang terlewat (${q.length})</h3>`+
+        q.map(x=>`<button class="chip" data-d="${x.d}">Hal. ${x.p} · ${fmtP(tglHari(j,x.d))} — tap jika sudah</button>`).join("")+`</div>`;
+    }
+    isi.innerHTML=`<div class="mushaf"><div class="mushaf-dalam">
+      <div class="basmalah">﷽</div><div class="eyebrow">${fmtT(Date.now())}</div>${dalam}</div></div>${qadha}`;
+    const b=$("btnBaca");if(b)b.onclick=()=>toggle(me,j.d,j.periode);
+    isi.querySelectorAll(".chip").forEach(c=>c.onclick=()=>toggle(me,Number(c.dataset.d),j.periode));
+  }
+
+  if(tab==="jamaah"){
+    if(belumMulai){isi.innerHTML=`<p class="catatan tengah" style="margin-top:30px">Program dimulai ${fmtT(j.mulai)}.</p>`;return;}
+    let total=0;state.config.members.forEach((_,i)=>((state.checks[i]||{})[j.periode]||[]).forEach(d=>{if(halaman(j,i,d))total++;}));
+    const persen=Math.round(total/TOTAL*100);
+    let baris="";state.config.members.forEach((n,i)=>{
+      const p=halaman(j,i,j.d);
+      if(!p){baris+=`<div class="baris"><span class="tanda ok">–</span><span class="nama">${esc(n)}</span><span class="hal">tanpa jatah</span></div>`;return;}
+      const ok=sudah(i,j.d,j.periode);
+      baris+=`<div class="baris"><button class="tanda ${ok?"ok":"no"} ${adminOK?"bisa":""}" ${adminOK?`data-i="${i}"`:""}>${ok?"✓":"•"}</button>
+        <span class="nama">${esc(n)}</span><span class="hal">Hal. ${p}</span></div>`;});
+    const q=[];state.config.members.forEach((n,i)=>{for(let d=0;d<j.d;d++){const p=halaman(j,i,d);
+      if(p&&!sudah(i,d,j.periode))q.push({n,i,d,p});}});
+    isi.innerHTML=`
+      <div class="kartu" style="margin-top:0"><h3>Progres khatam ke-${j.periode+1}</h3>
+        <div class="progress-shell"><div class="progress-isi" style="width:${Math.min(100,persen)}%"></div></div>
+        <div class="progress-txt"><span>${total} / ${TOTAL} halaman</span><span>${persen}%</span></div></div>
+      <div class="kartu"><h3>Bagikan ke WA</h3>
+        <button class="btn btn-hijau" id="btnJatah">📋 Salin jatah hari ini</button>
+        <button class="btn btn-ghost" id="btnRekap">📊 Salin rekap hari ini</button>
+        <p class="catatan">Tinggal tap, buka WA, paste ke grup. Format sudah rapi.</p></div>
+      <div class="kartu"><h3>Status hari ini${adminOK?' <span style="color:var(--emas)">· mode admin: tap lingkaran untuk ceklisin</span>':""}</h3>${baris}</div>
+      ${q.length?`<div class="kartu"><h3>Halaman terlewat seluruh jamaah (${q.length})</h3>`+
+        q.slice(0,40).map(x=>`<div class="baris">
+          <button class="tanda no ${adminOK?"bisa":""}" ${adminOK?`data-i="${x.i}" data-d="${x.d}"`:""}>•</button>
+          <span class="nama">${esc(x.n)}</span><span class="hal">Hal. ${x.p} · ${fmtP(tglHari(j,x.d))}</span></div>`).join("")+
+        (q.length>40?`<p class="catatan">…dan ${q.length-40} lainnya.</p>`:"")+`</div>`:""}
+      <button class="btn btn-ghost" id="btnMuat" style="margin-top:14px">Muat ulang data</button>`;
+    $("btnJatah").onclick=()=>salin(teksJatah(j),"Jatah harian");
+    $("btnRekap").onclick=()=>salin(teksRekap(j),"Rekap");
+    $("btnMuat").onclick=()=>muat().then(()=>toast("Data terbaru dimuat"));
+    if(adminOK)isi.querySelectorAll(".tanda.bisa").forEach(t=>t.onclick=()=>{
+      toggle(Number(t.dataset.i),t.dataset.d!==undefined?Number(t.dataset.d):j.d,j.periode);});
+  }
+
+  if(tab==="atur"){
+    isi.innerHTML=`
+      <div class="kartu" style="margin-top:0"><h3>Akun kamu</h3>
+        <p class="catatan" style="margin-top:0">Kamu masuk sebagai <b>${esc(state.config.members[me])}</b>.</p>
+        <button class="btn btn-ghost" id="btnGanti">Ganti nama saya</button></div>
+      <div class="kartu"><h3>Admin</h3><div id="adminArea">
+        ${adminOK?renderAdmin(j):`<input class="input" type="tel" id="pinIn" placeholder="Masukkan PIN admin" maxlength="8">
+        <button class="btn btn-ghost" id="btnPin">Buka mode admin</button>
+        <p class="catatan">Mode admin: ceklisin anggota lain di tab Jamaah, ubah daftar nama &amp; jadwal.</p>`}
+      </div></div>
+      <p class="catatan tengah" style="margin-top:18px">Mushaf standar 604 halaman · Semoga istiqamah 🤲</p>`;
+    $("btnGanti").onclick=()=>{localStorage.removeItem("odop-me");render();};
+    const bp=$("btnPin");if(bp)bp.onclick=async()=>{
+      try{
+        const ok=await rpc("odop_cek_pin",{p_pin:$("pinIn").value});
+        if(ok){adminOK=true;sessionStorage.setItem("odop-pin",$("pinIn").value);render();toast("Mode admin aktif");}
+        else toast("PIN salah");
+      }catch{ toast("Gagal, coba lagi"); }};
+    pasangAdmin();
+  }
+}
+function renderAdmin(j){
+  return `<p class="catatan" style="margin-top:0">Program: ${j.N} jamaah, mulai ${fmtT(j.mulai)}.
+    Mengubah daftar nama atau tanggal akan mengubah jadwal semua orang. Urutan nama menentukan halaman.</p>
+    <label class="label">Daftar nama (satu per baris)</label>
+    <textarea class="ta" id="editNama">${esc(state.config.members.join("\n"))}</textarea>
+    <label class="label">Tanggal mulai</label>
+    <input class="input" type="date" id="editTgl" value="${esc(state.config.startDate)}">
+    <button class="btn btn-hijau" id="btnSimpanCfg">Simpan perubahan</button>`;
+}
+function pasangAdmin(){
+  const b=$("btnSimpanCfg");if(!b)return;
+  b.onclick=async()=>{
+    if(!confirm("Yakin? Jadwal semua jamaah akan mengikuti daftar & tanggal baru."))return;
+    const members=$("editNama").value.split("\n").map(s=>s.trim()).filter(Boolean);
+    if(members.length<2)return toast("Minimal 2 nama");
+    try{
+      const ok=await rpc("odop_set_config",{p_members:members,p_start_date:$("editTgl").value,
+        p_pin:"",p_pin_lama:sessionStorage.getItem("odop-pin")});
+      ok?(muat(),toast("Tersimpan")):toast("PIN admin salah");
+    }catch{ toast("Gagal, coba lagi"); }
+  };
+}
+
+document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{
+  tab=t.dataset.tab;
+  document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("aktif",x===t));
+  render();
+});
+
+if("serviceWorker" in navigator)navigator.serviceWorker.register("./sw.js").catch(()=>{});
+muat();
+setInterval(muat,60000); // segarkan tiap menit biar status jamaah kebaru
+</script>
+</body>
+</html>
