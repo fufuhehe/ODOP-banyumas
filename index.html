@@ -217,7 +217,8 @@ function render(){
     };
     return;
   }
-  me=Number(localStorage.getItem("odop-me"));
+  const meRaw=localStorage.getItem("odop-me");
+  me=meRaw===null?NaN:Number(meRaw);
   if(!Number.isInteger(me)||me<0||me>=state.config.members.length){ // pilih nama
     $("subjudul").textContent="Pilih nama kamu dulu ya";
     nav.style.display="none";
