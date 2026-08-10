@@ -37,7 +37,7 @@ html[data-tema="gelap"] .tj.iqlab{color:#5FC1F0;}
 html[data-tema="gelap"] .tj.ghunnah{color:#FF9C4A;}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 body{margin:0;background:var(--kertas);font-family:'Plus Jakarta Sans',system-ui,sans-serif;color:var(--tinta);}
-header{background:var(--hijau);color:var(--krem);padding:14px 18px 12px;border-bottom:3px solid var(--emas);
+header{background:var(--hijau);color:var(--krem);background-blend-mode:normal;padding:14px 18px 12px;border-bottom:3px solid var(--emas);
   padding-top:calc(14px + env(safe-area-inset-top));}
 header h1{font-family:'Amiri',serif;font-size:22px;margin:0;font-weight:700;}
 header .sub{font-size:12px;opacity:.85;margin-top:2px;}
@@ -45,7 +45,7 @@ header .sub{font-size:12px;opacity:.85;margin-top:2px;}
 .mushaf{background:var(--kertas);border:1.5px solid var(--emas);border-radius:10px;padding:6px;
   box-shadow:0 4px 16px rgba(15,61,46,.10);}
 .mushaf-dalam{border:1px solid var(--emas-muda);border-radius:7px;padding:20px 16px;text-align:center;
-  background:linear-gradient(180deg,var(--kertas3),var(--kertas));}
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='0 0 56 56'%3E%3Cg fill='none' stroke='%23C9A227' stroke-opacity='.08'%3E%3Cpath d='M28 6l6 10 10 2-7 8 2 10-11-5-11 5 2-10-7-8 10-2z'/%3E%3C/g%3E%3C/svg%3E"),linear-gradient(180deg,var(--kertas3),var(--kertas));}
 .basmalah{font-family:'Amiri',serif;font-size:26px;color:var(--aksen);}
 .eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--redup);font-weight:600;margin-top:10px;}
 .hal-besar{font-family:'Amiri',serif;font-size:72px;line-height:1;font-weight:700;color:var(--aksen);margin:8px 0 2px;}
@@ -136,21 +136,54 @@ t.tj{font-style:normal;}
 .tj.madda_obligatory{color:#1233A8;}
 .tj.madda_necessary{color:#0A1E78;}
 .tj.ham_wasl,.tj.slnt,.tj.laam_shamsiyah,.tj.idgham_mutajanisayn,.tj.idgham_mutaqaribayn{color:#9AA49E;}
-@media (prefers-reduced-motion:reduce){*{transition:none!important;}}
+.orn{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='0 0 56 56'%3E%3Cg fill='none' stroke='%23FFFFFF' stroke-opacity='.07'%3E%3Cpath d='M28 6l6 10 10 2-7 8 2 10-11-5-11 5 2-10-7-8 10-2z'/%3E%3C/g%3E%3C/svg%3E");}
+.orn-emas{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='0 0 56 56'%3E%3Cg fill='none' stroke='%23C9A227' stroke-opacity='.08'%3E%3Cpath d='M28 6l6 10 10 2-7 8 2 10-11-5-11 5 2-10-7-8 10-2z'/%3E%3C/g%3E%3C/svg%3E");}
+.tab svg{width:22px;height:22px;}
+.juz-wrap{display:flex;gap:2.5px;margin-top:8px;}
+.juz-seg{flex:1;height:14px;border-radius:3px;min-width:0;}
+.ava{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  color:#FAF6EC;font-size:11.5px;font-weight:800;flex-shrink:0;border:none;font-family:inherit;letter-spacing:.02em;}
+button.ava{cursor:pointer;}
+@keyframes pop{0%{transform:scale(.7)}55%{transform:scale(1.06)}100%{transform:scale(1)}}
+.btn-sudah{animation:pop .3s ease-out;}
+.khatam-isi{flex:1;overflow-y:auto;padding:26px 22px;text-align:center;}
+.khatam-emoji{font-size:52px;margin-top:8px;}
+.khatam-judul{font-family:'Amiri',serif;font-size:36px;font-weight:700;color:var(--aksen);margin:10px 0 4px;}
+.khatam-sub{color:var(--redup);font-size:14px;}
+.khatam-doa-ar{font-family:'Amiri',serif;font-size:23px;line-height:2;direction:rtl;color:var(--tinta);
+  margin:20px 0 10px;}
+.khatam-doa-latin{font-size:13.5px;color:var(--redup);font-style:italic;line-height:1.7;}
+.khatam-arti{font-size:13px;color:var(--redup);line-height:1.65;margin-top:10px;}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important;}}
 </style>
 </head>
 <body>
-<header>
+<header class="orn">
   <h1>One Day One Page — Keluarga</h1>
   <div class="sub" id="subjudul">Memuat…</div>
 </header>
 <div class="wrap" id="isi"><div class="muat">Memuat data jamaah…</div></div>
 <nav class="tabs" id="navtabs" style="display:none"><div class="tabs-dalam">
-  <button class="tab aktif" data-tab="hari"><span class="ikon">📖</span>Hari ini</button>
-  <button class="tab" data-tab="jamaah"><span class="ikon">🕌</span>Jamaah</button>
-  <button class="tab" data-tab="atur"><span class="ikon">⚙️</span>Pengaturan</button>
+  <button class="tab aktif" data-tab="hari"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6c-2-1.6-4.8-2.2-8-2.2v14c3.2 0 6 .6 8 2.2 2-1.6 4.8-2.2 8-2.2v-14c-3.2 0-6 .6-8 2.2z"/><path d="M12 6v14"/></svg>Hari ini</button>
+  <button class="tab" data-tab="jamaah"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20v-7"/><path d="M20 20v-7"/><path d="M4 20h16"/><path d="M7 13c0-3 2.2-4.4 5-6.5 2.8 2.1 5 3.5 5 6.5"/><path d="M12 3.5v1.2"/><path d="M9.5 20v-3a2.5 2.5 0 0 1 5 0v3"/></svg>Jamaah</button>
+  <button class="tab" data-tab="atur"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 12h2M10 12h10M4 17h10M18 17h2"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="12" r="2"/><circle cx="16" cy="17" r="2"/></svg>Pengaturan</button>
 </div></nav>
 <div class="toast" id="toast"></div>
+<div id="khatamOv" class="baca-ov orn-emas" style="display:none">
+  <div class="khatam-isi">
+    <div class="khatam-emoji">🎉</div>
+    <div class="khatam-judul" id="khatamJudul">Khatam!</div>
+    <div class="khatam-sub" id="khatamSub"></div>
+    <div class="khatam-doa-ar">اللَّهُمَّ ارْحَمْنَا بِالْقُرْآنِ، وَاجْعَلْهُ لَنَا إِمَامًا وَنُورًا وَهُدًى وَرَحْمَةً</div>
+    <div class="khatam-doa-latin">Allāhumma-rḥamnā bil-qur'ān, waj'alhu lanā imāman wa nūran wa hudan wa raḥmah</div>
+    <div class="khatam-arti">"Ya Allah, rahmatilah kami dengan Al-Qur'an. Jadikanlah ia bagi kami panutan, cahaya, petunjuk, dan rahmat."</div>
+  </div>
+  <div class="baca-bawah">
+    <button class="btn btn-hijau" id="khatamSalin">📋 Salin ucapan khatam untuk WA</button>
+    <div style="height:8px"></div>
+    <button class="btn btn-ghost" id="khatamTutup">Tutup</button>
+  </div>
+</div>
 <div id="bacaOv" class="baca-ov" style="display:none">
   <div class="baca-atas">
     <button id="bacaTutup" class="ikonbtn" aria-label="Tutup">✕</button>
@@ -196,9 +229,10 @@ function jadwal(){
 }
 const batasReguler=(j)=>TOTAL%j.N===0?TOTAL:(j.hpp-1)*j.N;
 const halaman=(j,i,d)=>{const p=d*j.N+i+1;return p<=batasReguler(j)?p:null;};
-function infoLelang(j){
+function infoLelang(j,pp){
+  pp=pp===undefined?j.periode:pp;
   if(TOTAL%j.N===0)return [];
-  const rows=(state.lelang||[]).filter(r=>r.period===j.periode);
+  const rows=(state.lelang||[]).filter(r=>r.period===pp);
   const out=[];
   for(let p=batasReguler(j)+1;p<=TOTAL;p++){
     const r=rows.find(x=>x.page===p);
@@ -225,6 +259,44 @@ async function lepasLelang(p,periode){
   catch{toast("Gagal");}
   await muat();
 }
+// Status lengkap satu periode: jumlah selesai + daftar sisa reguler + status lelang
+function statusPeriode(j,pp){
+  let done=0; const sisa=[];
+  state.config.members.forEach((n,i)=>{
+    const set=new Set((state.checks[i]||{})[pp]||[]);
+    for(let d=0;d<j.hpp;d++){
+      const p=halaman(j,i,d); if(!p)continue;
+      if(set.has(d))done++; else sisa.push({n,i,d,p,per:pp});
+    }
+  });
+  const lel=infoLelang(j,pp);
+  lel.forEach(x=>{if(x.done)done++;});
+  return {done,sisa,lel};
+}
+// Himpunan halaman yang sudah dibaca (untuk visual juz)
+function halamanSelesai(j,pp){
+  const s=new Set();
+  state.config.members.forEach((_,i)=>((state.checks[i]||{})[pp]||[]).forEach(d=>{const p=halaman(j,i,d);if(p)s.add(p);}));
+  infoLelang(j,pp).forEach(x=>{if(x.done)s.add(x.p);});
+  return s;
+}
+const AWAL_JUZ=Array.from({length:30},(_,k)=>k===0?1:20*k+2);
+function barJuz(doneSet){
+  let seg="",juzKe=0;
+  for(let k=0;k<30;k++){
+    const a=AWAL_JUZ[k], b=k<29?AWAL_JUZ[k+1]-1:TOTAL;
+    let isi=0; for(let p=a;p<=b;p++)if(doneSet.has(p))isi++;
+    const f=Math.round(isi/(b-a+1)*100);
+    if(f===100&&juzKe===k)juzKe=k+1;
+    seg+=`<span class="juz-seg" style="background:linear-gradient(90deg,var(--hijau-muda) ${f}%,var(--kertas-2) ${f}%)" title="Juz ${k+1}"></span>`;
+  }
+  return {html:`<div class="juz-wrap">${seg}</div>`,juzKe};
+}
+const WARNA_AVA=["#1A5A44","#7A5C1E","#4E3D8F","#8F3D5E","#2E6E8F","#6E4A2E","#3D6E3D","#8F5E3D"];
+function avatar(nama,i,ok,tanpa){
+  const ini=String(nama).trim().split(/\s+/).map(w=>w[0]).slice(0,2).join("").toUpperCase();
+  return `<span class="ava" style="background:${WARNA_AVA[i%WARNA_AVA.length]};box-shadow:0 0 0 2px ${tanpa?"var(--garis)":ok?"var(--ok)":"var(--merah)"}">${esc(ini)}</span>`;
+}
 function kartuLelang(j,modeAdmin){
   const lel=infoLelang(j);
   if(!lel.length||j.d<j.hpp-2)return "";
@@ -247,9 +319,10 @@ function kartuLelang(j,modeAdmin){
 }
 function pasangAksiLelang(j){
   const sel=$("selLel"), isi=$("isi");
-  isi.querySelectorAll(".aksi-ambil").forEach(b=>b.onclick=()=>ambilLelang(Number(b.dataset.p),j.periode,sel?Number(sel.value):meList[0]));
-  isi.querySelectorAll(".aksi-lel-cek").forEach(b=>b.onclick=()=>lelangSelesai(Number(b.dataset.p),j.periode,b.dataset.v==="1"));
-  isi.querySelectorAll(".aksi-lepas").forEach(b=>b.onclick=()=>{if(confirm("Lepas halaman ini biar bisa diambil orang lain?"))lepasLelang(Number(b.dataset.p),j.periode);});
+  const per=(b)=>b.dataset.per!==undefined?Number(b.dataset.per):j.periode;
+  isi.querySelectorAll(".aksi-ambil").forEach(b=>b.onclick=()=>ambilLelang(Number(b.dataset.p),per(b),sel?Number(sel.value):meList[0]));
+  isi.querySelectorAll(".aksi-lel-cek").forEach(b=>b.onclick=()=>lelangSelesai(Number(b.dataset.p),per(b),b.dataset.v==="1"));
+  isi.querySelectorAll(".aksi-lepas").forEach(b=>b.onclick=()=>{if(confirm("Lepas halaman ini biar bisa diambil orang lain?"))lepasLelang(Number(b.dataset.p),per(b));});
 }
 const sudah=(i,d,p)=>((state.checks[i]||{})[p]||[]).includes(d);
 const tglHari=(j,d)=>j.mulai+(j.periode*j.hpp+d)*MS;
@@ -287,6 +360,7 @@ async function muat(){
 
 async function toggle(i,d,p){
   const done=!sudah(i,d,p);
+  if(done&&navigator.vibrate)navigator.vibrate(18);
   state.checks[i]=state.checks[i]||{}; // optimis
   const set=new Set(state.checks[i][p]||[]);
   done?set.add(d):set.delete(d);
@@ -454,6 +528,30 @@ async function bukaBaca(p,idx){
   $("bacaIsi").scrollTop=0;
 }
 
+/* ---------- perayaan & arsip khatam ---------- */
+function rentangPeriode(j,pp){
+  const a=j.mulai+pp*j.hpp*MS, b=a+(j.hpp-1)*MS;
+  return `${fmtP(a)} \u2013 ${fmtP(b)} ${new Date(b).getFullYear()}`;
+}
+function teksKhatam(j,pp){
+  return `\uD83C\uDF89 *Alhamdulillah, KHATAM ke-${pp+1}!* \uD83C\uDF89\n`+
+    `ODOP Keluarga \u2014 604 halaman tuntas bersama ${j.N} jamaah\n(${rentangPeriode(j,pp)})\n\n`+
+    `All\u0101humma-r\u1E25amn\u0101 bil-qur'\u0101n, waj'alhu lan\u0101 im\u0101man wa n\u016Bran wa hudan wa ra\u1E25mah.\n`+
+    `"Ya Allah, rahmatilah kami dengan Al-Qur'an. Jadikanlah ia bagi kami panutan, cahaya, petunjuk, dan rahmat."\n\n`+
+    `Barakallahu fiikum, semoga Allah menerima bacaan kita. Sampai jumpa di khatam berikutnya \uD83E\uDD32`;
+}
+function cekKhatam(j){
+  const pp=j.periode, kunci="odop-khatam-"+pp;
+  if(localStorage.getItem(kunci))return;
+  if(statusPeriode(j,pp).done!==TOTAL)return;
+  $("khatamJudul").textContent=`Khatam ke-${pp+1}!`;
+  $("khatamSub").textContent=`604 halaman tuntas \u00B7 ${j.N} jamaah \u00B7 ${rentangPeriode(j,pp)}`;
+  $("khatamOv").style.display="flex";
+  if(navigator.vibrate)navigator.vibrate([30,60,30]);
+  $("khatamSalin").onclick=()=>salin(teksKhatam(j,pp),"Ucapan khatam");
+  $("khatamTutup").onclick=()=>{localStorage.setItem(kunci,"1");$("khatamOv").style.display="none";};
+}
+
 /* ---------- render ---------- */
 function render(){
   const isi=$("isi"), nav=$("navtabs");
@@ -504,6 +602,7 @@ function render(){
   $("subjudul").textContent=`Khatam ke-${j.periode+1} · ${j.N} jamaah · ${j.hpp} hari/khatam`;
   nav.style.display="";
   const belumMulai=j.dayIndex<0;
+  if(!belumMulai)cekKhatam(j);
 
   if(tab==="hari"){
     let html="";
@@ -526,15 +625,18 @@ function render(){
           ${urutan===0?`<div class="basmalah">\uFDFD</div><div class="eyebrow">${fmtT(Date.now())}</div>`:""}${dalam}</div></div>`;
       });
       const q=[];
-      meList.forEach(idx=>{for(let d=0;d<j.d;d++){const p=halaman(j,idx,d);
-        if(p&&!sudah(idx,d,j.periode))q.push({idx,d,p});}});
+      for(let pp=0;pp<=j.periode;pp++){
+        const batasD=pp===j.periode?j.d:j.hpp;
+        meList.forEach(idx=>{for(let d=0;d<batasD;d++){const p=halaman(j,idx,d);
+          if(p&&!sudah(idx,d,pp))q.push({idx,d,p,per:pp});}});
+      }
       html+=kartuLelang(j,false);
       if(q.length)html+=`<div class="kartu"><h3>Halaman terlewat (${q.length})</h3>`+
-        q.map(x=>`<button class="chip aksi-qadha" data-idx="${x.idx}" data-d="${x.d}">Hal. ${x.p} \u00B7 ${labelHal(x.p)}${meList.length>1?` \u00B7 ${esc(state.config.members[x.idx])}`:""} \u00B7 ${fmtP(tglHari(j,x.d))} \u2014 tap jika sudah</button>`).join("")+`</div>`;
+        q.map(x=>`<button class="chip aksi-qadha" data-idx="${x.idx}" data-d="${x.d}" data-per="${x.per}">${x.per!==j.periode?`[K${x.per+1}] `:""}Hal. ${x.p} \u00B7 ${labelHal(x.p)}${meList.length>1?` \u00B7 ${esc(state.config.members[x.idx])}`:""} \u2014 tap jika sudah</button>`).join("")+`</div>`;
     }
     isi.innerHTML=html;
     isi.querySelectorAll(".aksi-cek").forEach(b=>b.onclick=()=>toggle(Number(b.dataset.idx),j.d,j.periode));
-    isi.querySelectorAll(".aksi-qadha").forEach(c=>c.onclick=()=>toggle(Number(c.dataset.idx),Number(c.dataset.d),j.periode));
+    isi.querySelectorAll(".aksi-qadha").forEach(c=>c.onclick=()=>toggle(Number(c.dataset.idx),Number(c.dataset.d),c.dataset.per!==undefined?Number(c.dataset.per):j.periode));
     isi.querySelectorAll(".aksi-baca").forEach(b=>b.onclick=()=>bukaBaca(Number(b.dataset.p),Number(b.dataset.idx)));
     if(!belumMulai)pasangAksiLelang(j);
   }
@@ -546,16 +648,30 @@ function render(){
     const persen=Math.round(total/TOTAL*100);
     let baris="";state.config.members.forEach((n,i)=>{
       const p=halaman(j,i,j.d);
-      if(!p){baris+=`<div class="baris"><span class="tanda ok">–</span><span class="nama">${esc(n)}</span><span class="hal">tanpa jatah</span></div>`;return;}
+      if(!p){baris+=`<div class="baris">${avatar(n,i,false,true)}<span class="nama">${esc(n)}</span><span class="hal">tanpa jatah</span></div>`;return;}
       const ok=sudah(i,j.d,j.periode);
-      baris+=`<div class="baris"><button class="tanda ${ok?"ok":"no"} ${adminOK?"bisa":""}" ${adminOK?`data-i="${i}"`:""}>${ok?"✓":"•"}</button>
-        <span class="nama">${esc(n)}</span><span class="hal">Hal. ${p}<span class="hal-srh">${labelHal(p)}</span></span></div>`;});
-    const q=[];state.config.members.forEach((n,i)=>{for(let d=0;d<j.d;d++){const p=halaman(j,i,d);
-      if(p&&!sudah(i,d,j.periode))q.push({n,i,d,p});}});
+      baris+=`<div class="baris"><button class="ava ${adminOK?"bisa":""}" style="background:${WARNA_AVA[i%WARNA_AVA.length]};box-shadow:0 0 0 2px ${ok?"var(--ok)":"var(--merah)"}" ${adminOK?`data-i="${i}"`:""}>${esc(String(n).trim().split(/\s+/).map(w=>w[0]).slice(0,2).join("").toUpperCase())}</button>
+        <span class="nama">${esc(n)} ${ok?"<span style=\"color:var(--ok)\">\u2713</span>":""}</span><span class="hal">Hal. ${p}<span class="hal-srh">${labelHal(p)}</span></span></div>`;});
+    const q=[];let lelLama="";
+    for(let pp=0;pp<j.periode;pp++){
+      const st=statusPeriode(j,pp);
+      st.sisa.forEach(x=>q.push(x));
+      st.lel.forEach(x=>{
+        if(x.done)return;
+        const milikku=x.klaim!==null&&meList.includes(x.klaim);
+        let aksi=x.klaim===null?`<button class="chip chip-ok aksi-ambil" data-p="${x.p}" data-per="${pp}">Ambil</button>`
+          :`<span class="hal">${esc(state.config.members[x.klaim]||"?")}</span>`+
+           ((milikku||adminOK)?`<button class="chip chip-ok aksi-lel-cek" data-p="${x.p}" data-per="${pp}" data-v="1">Kholas \u2713</button>`:"");
+        lelLama+=`<div class="baris"><span class="tanda no">\u2022</span>
+          <span class="nama">[K${pp+1}] Hal. ${x.p} (lelang)<span class="hal-srh">${labelHal(x.p)}</span></span>${aksi}</div>`;
+      });
+    }
+    state.config.members.forEach((n,i)=>{for(let d=0;d<j.d;d++){const p=halaman(j,i,d);
+      if(p&&!sudah(i,d,j.periode))q.push({n,i,d,p,per:j.periode});}});
     isi.innerHTML=`
       <div class="kartu" style="margin-top:0"><h3>Progres khatam ke-${j.periode+1}</h3>
-        <div class="progress-shell"><div class="progress-isi" style="width:${Math.min(100,persen)}%"></div></div>
-        <div class="progress-txt"><span>${total} / ${TOTAL} halaman</span><span>${persen}%</span></div></div>
+        ${(()=>{const bj=barJuz(halamanSelesai(j,j.periode));
+          return bj.html+`<div class="progress-txt"><span>${total} / ${TOTAL} halaman \u00B7 ${persen}%</span><span>${bj.juzKe?`Juz ${bj.juzKe} tuntas`:"Juz 1 berjalan"}</span></div>`;})()}</div>
       <div class="kartu"><h3>Bagikan ke WA</h3>
         <button class="btn btn-hijau" id="btnJatah">📋 Salin jatah hari ini</button>
         <button class="btn btn-ghost" id="btnRekap">📊 Salin rekap hari ini</button>
@@ -565,10 +681,11 @@ function render(){
       ${q.length?`<div class="kartu"><h3>Halaman terlewat seluruh jamaah (${q.length})</h3>`+
         (adminOK?`<div class="baris"><input type="checkbox" class="cb" id="cbSemua">
           <span class="nama"><b>Pilih semua ${q.length} halaman</b></span></div>`:"")+
+        lelLama+
         q.slice(0,40).map((x,k)=>`<div class="baris">
           ${adminOK?`<input type="checkbox" class="cb cb-q" data-k="${k}">`:""}
-          <button class="tanda no ${adminOK?"bisa":""}" ${adminOK?`data-i="${x.i}" data-d="${x.d}"`:""}>•</button>
-          <span class="nama">${esc(x.n)}</span><span class="hal">Hal. ${x.p} · ${fmtP(tglHari(j,x.d))}<span class="hal-srh">${labelHal(x.p)}</span></span></div>`).join("")+
+          <button class="tanda no ${adminOK?"bisa":""}" ${adminOK?`data-i="${x.i}" data-d="${x.d}" data-per="${x.per}"`:""}>•</button>
+          <span class="nama">${x.per!==j.periode?`<b>[K${x.per+1}]</b> `:""}${esc(x.n)}</span><span class="hal">Hal. ${x.p}<span class="hal-srh">${labelHal(x.p)}</span></span></div>`).join("")+
         (q.length>40?`<p class="catatan">…dan ${q.length-40} lainnya (ikut tertandai jika "Pilih semua" dicentang).</p>`:"")+
         (adminOK?`<button class="btn btn-hijau" id="btnBatch" disabled style="margin-top:12px">Tandai terpilih sudah dibaca</button>`:"")+
         `</div>`:""}
@@ -577,8 +694,9 @@ function render(){
     $("btnJatah").onclick=()=>salin(teksJatah(j),"Jatah harian");
     $("btnRekap").onclick=()=>salin(teksRekap(j),"Rekap");
     $("btnMuat").onclick=()=>muat().then(()=>toast("Data terbaru dimuat"));
-    if(adminOK)isi.querySelectorAll(".tanda.bisa").forEach(t=>t.onclick=()=>{
-      toggle(Number(t.dataset.i),t.dataset.d!==undefined?Number(t.dataset.d):j.d,j.periode);});
+    if(adminOK)isi.querySelectorAll(".tanda.bisa, .ava.bisa").forEach(t=>t.onclick=()=>{
+      toggle(Number(t.dataset.i),t.dataset.d!==undefined?Number(t.dataset.d):j.d,
+        t.dataset.per!==undefined?Number(t.dataset.per):j.periode);});
     const btnB=$("btnBatch"), cbA=$("cbSemua");
     if(btnB&&cbA){
       const cbs=[...isi.querySelectorAll(".cb-q")];
@@ -596,7 +714,7 @@ function render(){
         try{
           await sb("odop_checks?on_conflict=member_idx,period,day",{
             method:"POST",headers:{Prefer:"resolution=ignore-duplicates"},
-            body:JSON.stringify(target.map(x=>({member_idx:x.i,period:j.periode,day:x.d})))});
+            body:JSON.stringify(target.map(x=>({member_idx:x.i,period:x.per,day:x.d})))});
           toast(`${target.length} halaman tertandai \u2713`);
           await muat();
         }catch{toast("Gagal menyimpan, coba lagi");upd();}
@@ -610,6 +728,16 @@ function render(){
         <p class="catatan" style="margin-top:0">Kamu mengampu: <b>${meList.map(i=>esc(state.config.members[i])).join(", ")}</b>.</p>
         <button class="btn btn-ghost" id="btnGanti">Kelola nama saya (tambah/kurangi)</button>
         <p class="catatan">Contoh: kalau pasangan sedang berhalangan, tambahkan namanya di sini \u2014 jatahnya muncul di HP kamu dan ceklisnya tetap tercatat atas nama dia.</p></div>
+      ${(()=>{const j2=jadwal();if(j2.dayIndex<0)return "";
+        let r="";
+        for(let pp=0;pp<=j2.periode;pp++){
+          const st=statusPeriode(j2,pp);
+          const status=pp===j2.periode
+            ?(st.done===TOTAL?'<span style="color:var(--ok)">\u2713 Selesai</span>':`berjalan \u00B7 ${st.done}/604`)
+            :(st.done===TOTAL?'<span style="color:var(--ok)">\u2713 Selesai</span>':`<span style="color:var(--merah)">sisa ${TOTAL-st.done} hal.</span>`);
+          r+=`<div class="baris"><span class="nama">Khatam ke-${pp+1}<span class="hal-srh">${rentangPeriode(j2,pp)}</span></span><span class="hal">${status}</span></div>`;
+        }
+        return `<div class="kartu"><h3>Riwayat khatam</h3>${r}</div>`;})()}
       <div class="kartu"><h3>Tampilan</h3>
         <button class="btn btn-ghost" id="btnTema">${document.documentElement.dataset.tema==="gelap"?"\u2600\uFE0F Ganti ke mode terang":"\uD83C\uDF19 Ganti ke mode gelap"}</button>
         <p class="catatan">Bawaan mengikuti setelan HP. Pilihan manual tersimpan di HP kamu.</p></div>
