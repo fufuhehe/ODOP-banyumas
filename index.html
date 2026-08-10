@@ -228,7 +228,11 @@ function jadwal(){
   return {N,hpp,mulai,dayIndex,periode,d:dayIndex-periode*hpp};
 }
 const batasReguler=(j)=>TOTAL%j.N===0?TOTAL:(j.hpp-1)*j.N;
-const halaman=(j,i,d)=>{const p=d*j.N+i+1;return p<=batasReguler(j)?p:null;};
+// Rotasi: tiap khatam bergeser 1 nama (yang pertama pindah ke urutan akhir)
+const posisi=(N,i,pp)=>((i-pp)%N+N)%N;
+const halaman=(j,i,d,pp)=>{pp=pp===undefined?j.periode:pp;
+  const p=d*j.N+posisi(j.N,i,pp)+1;return p<=batasReguler(j)?p:null;};
+const urutPosisi=(j,pp)=>[...state.config.members.keys()].sort((a,b)=>posisi(j.N,a,pp===undefined?j.periode:pp)-posisi(j.N,b,pp===undefined?j.periode:pp));
 function infoLelang(j,pp){
   pp=pp===undefined?j.periode:pp;
   if(TOTAL%j.N===0)return [];
@@ -265,7 +269,7 @@ function statusPeriode(j,pp){
   state.config.members.forEach((n,i)=>{
     const set=new Set((state.checks[i]||{})[pp]||[]);
     for(let d=0;d<j.hpp;d++){
-      const p=halaman(j,i,d); if(!p)continue;
+      const p=halaman(j,i,d,pp); if(!p)continue;
       if(set.has(d))done++; else sisa.push({n,i,d,p,per:pp});
     }
   });
@@ -276,7 +280,7 @@ function statusPeriode(j,pp){
 // Himpunan halaman yang sudah dibaca (untuk visual juz)
 function halamanSelesai(j,pp){
   const s=new Set();
-  state.config.members.forEach((_,i)=>((state.checks[i]||{})[pp]||[]).forEach(d=>{const p=halaman(j,i,d);if(p)s.add(p);}));
+  state.config.members.forEach((_,i)=>((state.checks[i]||{})[pp]||[]).forEach(d=>{const p=halaman(j,i,d,pp);if(p)s.add(p);}));
   infoLelang(j,pp).forEach(x=>{if(x.done)s.add(x.p);});
   return s;
 }
@@ -403,14 +407,20 @@ function terbilang(n){
 }
 const hariKata=(n)=>n===1?"pertama":"ke"+terbilang(n);
 
-function teksJatah(j){
-  const d=new Date();
+function jadwalGeser(j,ofs){
+  const di=j.dayIndex+ofs;
+  const periode=Math.max(0,Math.floor(di/j.hpp));
+  return {...j,dayIndex:di,periode,d:di-periode*j.hpp};
+}
+function teksJatah(j,tglMs){
+  const d=new Date(tglMs===undefined?Date.now():tglMs);
   const BLN=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
   const HR=["Minggu","Senin","Selasa","Rabu","Kamis","Jumat","Sabtu"];
   const tgl=`${HR[d.getDay()]}, ${String(d.getDate()).padStart(2,"0")} ${BLN[d.getMonth()]} ${d.getFullYear()}`;
-  let t=`Moderator hari ${hariKata(j.d+1)}: \nBismillahirrohmannirrohim\nالسَّلاَمُ عَلَيْكُمْ وَرَحْمَةُ اللهِ وَبَرَكَاتُهُ \nList tilawah harian\n${tgl}:\n`;
+  let t=`Moderator hari ${hariKata(j.d+1)}: \n\nBismillahirrohmannirrohim\n\nالسَّلاَمُ عَلَيْكُمْ وَرَحْمَةُ اللهِ وَبَرَكَاتُهُ \n\nList tilawah harian\n${tgl}:\n`;
   let surahAktif=null;
-  state.config.members.forEach((n,i)=>{
+  urutPosisi(j).forEach(i=>{
+    const n=state.config.members[i];
     const p=halaman(j,i,j.d); if(!p)return;
     const seg=segmenHal(p);
     if(seg[0].s!==surahAktif){
@@ -424,17 +434,18 @@ function teksJatah(j){
   });
   const lel=infoLelang(j);
   if(lel.length&&j.d>=j.hpp-2){
-    t+=`\nMenjelang khatam, ${lel.length} halaman terakhir dilelang untuk kelancaran proses khatam \u2014 silakan diambil bagi yang ingin menambah bacaan:\n`;
+    t+=`\nTak terasa kita sudah akan menjelang khatam lagi...\n\nSeperti sebelumnya, ${lel.length} hal Al-Qur'an yg tersisa akan dilelang untuk kelancaran proses khatam..\n`;
     lel.forEach(x=>{
       t+=`\uD83D\uDCCC ${x.p}. ${labelHal(x.p)}${x.klaim!==null?` \u2014 ${state.config.members[x.klaim]||"?"}${x.done?"\u2705":""}`:""}\n`;
     });
+    t+=`\nBagi Sedulur yg ingin menambah bacaannya, dipersilahkan utk mengambil hlmn lelang ya\n`;
   }
-  t+=`\nJangan lupa membaca surah Al-Fatihah sebelum memulai tilawah\nMohon review dan koreksinya jika ada kesalahan\nJangan lupa laporan kholasnya \u2705 ya`;
+  t+=`\nJangan lupa membaca surah Al-Fatihah sebelum memulai tilawah\n\nMohon review dan koreksinya jika ada kesalahan\n\nJangan lupa laporan kholasnya \u2705 ya`;
   return t;
 }
 function teksRekap(j){
   const ok=[],belum=[];
-  state.config.members.forEach((n,i)=>{const p=halaman(j,i,j.d);if(!p)return;
+  urutPosisi(j).forEach(i=>{const n=state.config.members[i];const p=halaman(j,i,j.d);if(!p)return;
     (sudah(i,j.d,j.periode)?ok:belum).push({n,p});});
   let t=`📊 *Rekap ODOP* — ${fmtT(Date.now())}\n\n✅ Sudah (${ok.length}): ${ok.map(x=>x.n).join(", ")||"-"}\n`;
   if(belum.length){t+=`\n⏳ Belum (${belum.length}):\n`;belum.forEach(x=>t+=`• ${x.n} — Hal. ${x.p}\n`);}
@@ -447,6 +458,14 @@ function teksRekap(j){
     t+=`\n🏷️ Lelang: `+lel.map(x=>`${x.p} ${x.klaim!==null?(state.config.members[x.klaim]||"?")+(x.done?"✅":" (belum)"):"tersedia"}`).join(", ");
   }
   return t;
+}
+function teksPenutup(){
+  return `Alhamdulillahirobbil 'Aalamiin..\n\n`+
+    `Marilah kita tutup tilawah hari ini dengan membaca doa penutup majelis:\n\n`+
+    `\u0633\u064F\u0628\u0652\u062D\u064E\u0627\u0646\u064E\u0643\u064E \u0627\u0644\u0644\u0651\u0670\u0647\u064F\u0645\u0651\u064E \u0648\u064E\u0628\u0650\u062D\u064E\u0645\u0652\u062F\u0650\u0643\u064E\n`+
+    `\u0623\u064E\u0634\u0652\u0647\u064E\u062F\u064F \u0623\u064E\u0646\u0652 \u0644\u0651\u064E\u0627 \u0625\u0650\u0644\u0670\u0647\u064E \u0625\u0650\u0644\u0651\u064E\u0627 \u0623\u064E\u0646\u0652\u062A\u064E\n`+
+    `\u0623\u064E\u0633\u0652\u062A\u064E\u063A\u0652\u0641\u0650\u0631\u064F\u0643\u064E \u0648\u064E\u0623\u064E\u062A\u064F\u0648\u0652\u0628\u064F \u0625\u0650\u0644\u064E\u064A\u0652\u0643\u064E\n\n`+
+    `Subhanaka Allahumma wabihamdika, asyhadu allaa ilaaha illaa anta, astaghfiruka wa atuubu ilaiik \uD83E\uDD32`;
 }
 async function salin(t,label){
   try{ await navigator.clipboard.writeText(t); toast(label+" tersalin — tinggal paste di WA"); }
@@ -499,13 +518,14 @@ async function ambilHalamanQuran(p){
 }
 function tombolBacaCek(){
   if(!bacaCtx)return;
-  const j=jadwal(), ok=sudah(bacaCtx.idx,j.d,j.periode);
+  const ok=sudah(bacaCtx.idx,bacaCtx.d,bacaCtx.per);
   const b=$("bacaCek");
   b.className=`btn ${ok?"btn-sudah":"btn-hijau"}`;
   b.textContent=ok?`\u2713 Sudah dibaca (${state.config.members[bacaCtx.idx]})`:`Tandai sudah dibaca (${state.config.members[bacaCtx.idx]})`;
 }
-async function bukaBaca(p,idx){
-  bacaCtx={p,idx};
+async function bukaBaca(p,idx,dd,pper){
+  const jx=jadwal();
+  bacaCtx={p,idx,d:dd===undefined?jx.d:dd,per:pper===undefined?jx.periode:pper};
   $("bacaOv").style.display="flex";
   $("bacaJudul").textContent=`Hal. ${p}`;
   $("bacaIsi").innerHTML=`<p class="muat">Memuat halaman ${p}\u2026</p>`;
@@ -627,9 +647,22 @@ function render(){
       const q=[];
       for(let pp=0;pp<=j.periode;pp++){
         const batasD=pp===j.periode?j.d:j.hpp;
-        meList.forEach(idx=>{for(let d=0;d<batasD;d++){const p=halaman(j,idx,d);
+        meList.forEach(idx=>{for(let d=0;d<batasD;d++){const p=halaman(j,idx,d,pp);
           if(p&&!sudah(idx,d,pp))q.push({idx,d,p,per:pp});}});
       }
+      const j2=jadwalGeser(j,1);
+      let besok="";
+      meList.forEach(idx=>{
+        const p=halaman(j2,idx,j2.d,j2.periode); if(!p)return;
+        const ok2=sudah(idx,j2.d,j2.periode);
+        besok+=`<div class="baris"><span class="tanda ${ok2?"ok":"no"}">${ok2?"\u2713":"\u2022"}</span>
+          <span class="nama">${esc(state.config.members[idx])}<span class="hal-srh">${labelHal(p)}</span></span>
+          <span class="hal">Hal. ${p}</span>
+          <button class="chip ${ok2?"":"chip-ok"} aksi-besok-cek" data-idx="${idx}">${ok2?"Batal":"Kholas \u2713"}</button>
+          <button class="chip aksi-besok-baca" data-p="${p}" data-idx="${idx}">Baca</button></div>`;
+      });
+      if(besok)html+=`<div class="kartu"><h3>\uD83C\uDF05 Jatah besok \u00B7 ${fmtT(Date.now()+MS)}${j2.periode!==j.periode?` <span style="color:var(--emas)">\u00B7 khatam ke-${j2.periode+1} dimulai!</span>`:""}</h3>
+        <p class="catatan" style="margin-top:0">Buat yang mau nyicil dari malam ini \u2014 ceklis di sini tercatat untuk besok, rekap hari ini tetap aman.</p>${besok}</div>`;
       html+=kartuLelang(j,false);
       if(q.length)html+=`<div class="kartu"><h3>Halaman terlewat (${q.length})</h3>`+
         q.map(x=>`<button class="chip aksi-qadha" data-idx="${x.idx}" data-d="${x.d}" data-per="${x.per}">${x.per!==j.periode?`[K${x.per+1}] `:""}Hal. ${x.p} \u00B7 ${labelHal(x.p)}${meList.length>1?` \u00B7 ${esc(state.config.members[x.idx])}`:""} \u2014 tap jika sudah</button>`).join("")+`</div>`;
@@ -638,7 +671,12 @@ function render(){
     isi.querySelectorAll(".aksi-cek").forEach(b=>b.onclick=()=>toggle(Number(b.dataset.idx),j.d,j.periode));
     isi.querySelectorAll(".aksi-qadha").forEach(c=>c.onclick=()=>toggle(Number(c.dataset.idx),Number(c.dataset.d),c.dataset.per!==undefined?Number(c.dataset.per):j.periode));
     isi.querySelectorAll(".aksi-baca").forEach(b=>b.onclick=()=>bukaBaca(Number(b.dataset.p),Number(b.dataset.idx)));
-    if(!belumMulai)pasangAksiLelang(j);
+    if(!belumMulai){
+      const j2b=jadwalGeser(j,1);
+      isi.querySelectorAll(".aksi-besok-cek").forEach(b=>b.onclick=()=>toggle(Number(b.dataset.idx),j2b.d,j2b.periode));
+      isi.querySelectorAll(".aksi-besok-baca").forEach(b=>b.onclick=()=>bukaBaca(Number(b.dataset.p),Number(b.dataset.idx),j2b.d,j2b.periode));
+      pasangAksiLelang(j);
+    }
   }
 
   if(tab==="jamaah"){
@@ -646,7 +684,8 @@ function render(){
     let total=0;state.config.members.forEach((_,i)=>((state.checks[i]||{})[j.periode]||[]).forEach(d=>{if(halaman(j,i,d))total++;}));
     infoLelang(j).forEach(x=>{if(x.done)total++;});
     const persen=Math.round(total/TOTAL*100);
-    let baris="";state.config.members.forEach((n,i)=>{
+    let baris="";urutPosisi(j).forEach(i=>{
+      const n=state.config.members[i];
       const p=halaman(j,i,j.d);
       if(!p){baris+=`<div class="baris">${avatar(n,i,false,true)}<span class="nama">${esc(n)}</span><span class="hal">tanpa jatah</span></div>`;return;}
       const ok=sudah(i,j.d,j.periode);
@@ -675,6 +714,8 @@ function render(){
       <div class="kartu"><h3>Bagikan ke WA</h3>
         <button class="btn btn-hijau" id="btnJatah">📋 Salin jatah hari ini</button>
         <button class="btn btn-ghost" id="btnRekap">📊 Salin rekap hari ini</button>
+        <button class="btn btn-ghost" id="btnJatahBesok">🌅 Salin jatah besok</button>
+        <button class="btn btn-ghost" id="btnTutupHari">🌙 Salin penutup harian</button>
         <p class="catatan">Tinggal tap, buka WA, paste ke grup. Format sudah rapi.</p></div>
       ${kartuLelang(j,adminOK)}
       <div class="kartu"><h3>Status hari ini${adminOK?' <span style="color:var(--emas)">· mode admin: tap lingkaran untuk ceklisin</span>':""}</h3>${baris}</div>
@@ -693,6 +734,8 @@ function render(){
     pasangAksiLelang(j);
     $("btnJatah").onclick=()=>salin(teksJatah(j),"Jatah harian");
     $("btnRekap").onclick=()=>salin(teksRekap(j),"Rekap");
+    $("btnJatahBesok").onclick=()=>salin(teksJatah(jadwalGeser(j,1),Date.now()+MS),"Jatah besok");
+    $("btnTutupHari").onclick=()=>salin(teksPenutup(),"Penutup harian");
     $("btnMuat").onclick=()=>muat().then(()=>toast("Data terbaru dimuat"));
     if(adminOK)isi.querySelectorAll(".tanda.bisa, .ava.bisa").forEach(t=>t.onclick=()=>{
       toggle(Number(t.dataset.i),t.dataset.d!==undefined?Number(t.dataset.d):j.d,
@@ -808,8 +851,7 @@ $("fBesar").onclick=()=>{ukA=Math.min(44,ukA+3);document.documentElement.style.s
 $("fKecil").onclick=()=>{ukA=Math.max(21,ukA-3);document.documentElement.style.setProperty("--ukA",ukA+"px");};
 $("bacaCek").onclick=async()=>{
   if(!bacaCtx)return;
-  const j=jadwal();
-  await toggle(bacaCtx.idx,j.d,j.periode);
+  await toggle(bacaCtx.idx,bacaCtx.d,bacaCtx.per);
   tombolBacaCek();
 };
 if("serviceWorker" in navigator)navigator.serviceWorker.register("./sw.js").catch(()=>{});
