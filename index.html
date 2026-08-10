@@ -221,13 +221,13 @@ function toast(t){const e=$("toast");e.textContent=t;e.classList.add("nampak");s
 
 function jadwal(){
   const N=state.config.members.length;
-  const hpp=Math.ceil(TOTAL/N);
+  const hpp=Math.max(1,Math.floor(TOTAL/N));
   const mulai=midnight(state.config.startDate+"T00:00:00");
   const dayIndex=Math.floor((midnight(Date.now())-mulai)/MS);
   const periode=Math.max(0,Math.floor(dayIndex/hpp));
   return {N,hpp,mulai,dayIndex,periode,d:dayIndex-periode*hpp};
 }
-const batasReguler=(j)=>TOTAL%j.N===0?TOTAL:(j.hpp-1)*j.N;
+const batasReguler=(j)=>Math.min(TOTAL,j.hpp*j.N);
 // Rotasi: tiap khatam bergeser 1 nama (yang pertama pindah ke urutan akhir)
 const posisi=(N,i,pp)=>((i-pp)%N+N)%N;
 const halaman=(j,i,d,pp)=>{pp=pp===undefined?j.periode:pp;
@@ -589,7 +589,7 @@ function render(){
       <button class="btn btn-hijau" id="btnSetup">Simpan &amp; mulai program</button>`;
     const d=new Date();$("mulaiTgl").value=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
     $("namaTxt").oninput=()=>{const n=$("namaTxt").value.split("\n").map(s=>s.trim()).filter(Boolean).length;
-      $("infoHit").textContent=n?`${n} jamaah → ${n} halaman/hari → khatam dalam ${Math.ceil(TOTAL/n)} hari, lalu otomatis lanjut khatam berikutnya.`:"";};
+      $("infoHit").textContent=n?`${n} jamaah → ${n} halaman/hari → khatam dalam ${Math.floor(TOTAL/n)} hari${TOTAL%n?` + ${TOTAL%n} halaman lelang di akhir`:""}, lalu otomatis lanjut khatam berikutnya.`:"";};
     $("btnSetup").onclick=async()=>{
       const members=$("namaTxt").value.split("\n").map(s=>s.trim()).filter(Boolean);
       if(members.length<2)return toast("Minimal 2 nama ya");
@@ -652,7 +652,7 @@ function render(){
       }
       const j2=jadwalGeser(j,1);
       let besok="";
-      meList.forEach(idx=>{
+      if(new Date().getHours()>=15)meList.forEach(idx=>{
         const p=halaman(j2,idx,j2.d,j2.periode); if(!p)return;
         const ok2=sudah(idx,j2.d,j2.periode);
         besok+=`<div class="baris"><span class="tanda ${ok2?"ok":"no"}">${ok2?"\u2713":"\u2022"}</span>
@@ -711,12 +711,12 @@ function render(){
       <div class="kartu" style="margin-top:0"><h3>Progres khatam ke-${j.periode+1}</h3>
         ${(()=>{const bj=barJuz(halamanSelesai(j,j.periode));
           return bj.html+`<div class="progress-txt"><span>${total} / ${TOTAL} halaman \u00B7 ${persen}%</span><span>${bj.juzKe?`Juz ${bj.juzKe} tuntas`:"Juz 1 berjalan"}</span></div>`;})()}</div>
-      <div class="kartu"><h3>Bagikan ke WA</h3>
+      ${adminOK?`<div class="kartu"><h3>Bagikan ke WA</h3>
         <button class="btn btn-hijau" id="btnJatah">📋 Salin jatah hari ini</button>
         <button class="btn btn-ghost" id="btnRekap">📊 Salin rekap hari ini</button>
         <button class="btn btn-ghost" id="btnJatahBesok">🌅 Salin jatah besok</button>
         <button class="btn btn-ghost" id="btnTutupHari">🌙 Salin penutup harian</button>
-        <p class="catatan">Tinggal tap, buka WA, paste ke grup. Format sudah rapi.</p></div>
+        <p class="catatan">Tinggal tap, buka WA, paste ke grup. Format sudah rapi.</p></div>`:""}
       ${kartuLelang(j,adminOK)}
       <div class="kartu"><h3>Status hari ini${adminOK?' <span style="color:var(--emas)">· mode admin: tap lingkaran untuk ceklisin</span>':""}</h3>${baris}</div>
       ${q.length?`<div class="kartu"><h3>Halaman terlewat seluruh jamaah (${q.length})</h3>`+
@@ -732,10 +732,12 @@ function render(){
         `</div>`:""}
       <button class="btn btn-ghost" id="btnMuat" style="margin-top:14px">Muat ulang data</button>`;
     pasangAksiLelang(j);
-    $("btnJatah").onclick=()=>salin(teksJatah(j),"Jatah harian");
-    $("btnRekap").onclick=()=>salin(teksRekap(j),"Rekap");
-    $("btnJatahBesok").onclick=()=>salin(teksJatah(jadwalGeser(j,1),Date.now()+MS),"Jatah besok");
-    $("btnTutupHari").onclick=()=>salin(teksPenutup(),"Penutup harian");
+    if(adminOK){
+      $("btnJatah").onclick=()=>salin(teksJatah(j),"Jatah harian");
+      $("btnRekap").onclick=()=>salin(teksRekap(j),"Rekap");
+      $("btnJatahBesok").onclick=()=>salin(teksJatah(jadwalGeser(j,1),Date.now()+MS),"Jatah besok");
+      $("btnTutupHari").onclick=()=>salin(teksPenutup(),"Penutup harian");
+    }
     $("btnMuat").onclick=()=>muat().then(()=>toast("Data terbaru dimuat"));
     if(adminOK)isi.querySelectorAll(".tanda.bisa, .ava.bisa").forEach(t=>t.onclick=()=>{
       toggle(Number(t.dataset.i),t.dataset.d!==undefined?Number(t.dataset.d):j.d,
@@ -785,21 +787,24 @@ function render(){
         <button class="btn btn-ghost" id="btnTema">${document.documentElement.dataset.tema==="gelap"?"\u2600\uFE0F Ganti ke mode terang":"\uD83C\uDF19 Ganti ke mode gelap"}</button>
         <p class="catatan">Bawaan mengikuti setelan HP. Pilihan manual tersimpan di HP kamu.</p></div>
       <div class="kartu"><h3>Admin</h3><div id="adminArea">
-        ${adminOK?renderAdmin(j):`<input class="input" type="tel" id="pinIn" placeholder="Masukkan PIN admin" maxlength="8">
+        ${adminOK?renderAdmin(j)+`<button class="btn btn-ghost" id="btnKeluarAdmin" style="margin-top:8px">Keluar mode admin di HP ini</button>`:`<input class="input" type="tel" id="pinIn" placeholder="Masukkan PIN admin" maxlength="8">
         <button class="btn btn-ghost" id="btnPin">Buka mode admin</button>
         <p class="catatan">Mode admin: ceklisin anggota lain di tab Jamaah, ubah daftar nama &amp; jadwal.</p>`}
       </div></div>
       <p class="catatan tengah" style="margin-top:18px">Mushaf standar 604 halaman · Semoga istiqamah 🤲</p>`;
     $("btnGanti").onclick=()=>{pilihUlang=true;render();};
+    const bk=$("btnKeluarAdmin");
+    if(bk)bk.onclick=()=>{localStorage.removeItem("odop-pin");adminOK=false;render();toast("Mode admin dimatikan");};
     $("btnTema").onclick=()=>{
       const gelap=document.documentElement.dataset.tema==="gelap";
       localStorage.setItem("odop-tema",gelap?"terang":"gelap");
-      pasangTema();render();
+      pasangTema();
+adminOK=!!localStorage.getItem("odop-pin");render();
     };
     const bp=$("btnPin");if(bp)bp.onclick=async()=>{
       try{
         const ok=await rpc("odop_cek_pin",{p_pin:$("pinIn").value});
-        if(ok){adminOK=true;sessionStorage.setItem("odop-pin",$("pinIn").value);render();toast("Mode admin aktif");}
+        if(ok){adminOK=true;localStorage.setItem("odop-pin",$("pinIn").value);render();toast("Mode admin aktif \u2014 tersimpan di HP ini sampai kamu keluar sendiri");}
         else toast("PIN salah");
       }catch{ toast("Gagal, coba lagi"); }};
     pasangAdmin();
@@ -822,7 +827,7 @@ function pasangAdmin(){
     if(members.length<2)return toast("Minimal 2 nama");
     try{
       const ok=await rpc("odop_set_config",{p_members:members,p_start_date:$("editTgl").value,
-        p_pin:"",p_pin_lama:sessionStorage.getItem("odop-pin")});
+        p_pin:"",p_pin_lama:localStorage.getItem("odop-pin")});
       ok?(muat(),toast("Tersimpan")):toast("PIN admin salah");
     }catch{ toast("Gagal, coba lagi"); }
   };
