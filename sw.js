@@ -1,5 +1,5 @@
 // Service worker sederhana: cache shell aplikasi, API selalu dari jaringan
-const CACHE = "odop-v8";
+const CACHE = "odop-v10";
 const SHELL = ["./", "./manifest.json", "./icon-192.png", "./icon-512.png"];
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting()));
