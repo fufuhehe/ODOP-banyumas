@@ -345,12 +345,27 @@ async function sb(path,opsi={}){
   return t?JSON.parse(t):null;
 }
 const rpc=(nama,args)=>sb(`rpc/${nama}`,{method:"POST",body:JSON.stringify(args)});
+// Tarik SEMUA baris bertahap — server membatasi jumlah baris per satu request
+async function sbAll(path,pageSize=900){
+  let out=[],from=0;
+  for(let putaran=0;putaran<60;putaran++){
+    const r=await fetch(`${SB_URL}/rest/v1/${path}`,{
+      headers:{apikey:SB_KEY,Authorization:`Bearer ${SB_KEY}`,
+        "Range-Unit":"items",Range:`${from}-${from+pageSize-1}`}});
+    if(!r.ok)throw new Error("Supabase "+r.status);
+    const b=await r.json();
+    out=out.concat(b);
+    if(b.length<pageSize)break;
+    from+=pageSize;
+  }
+  return out;
+}
 async function muat(){
   try{
     const [cfg,rows,lel]=await Promise.all([
       sb("odop_config_public?id=eq.1&select=members,start_date"),
-      sb("odop_checks?select=member_idx,period,day"),
-      sb("odop_lelang?select=period,page,member_idx,done").catch(()=>[])
+      sbAll("odop_checks?select=member_idx,period,day&order=member_idx.asc,period.asc,day.asc"),
+      sbAll("odop_lelang?select=period,page,member_idx,done&order=period.asc,page.asc").catch(()=>[])
     ]);
     const checks={};
     (rows||[]).forEach(r=>{
@@ -375,7 +390,7 @@ async function toggle(i,d,p){
       method:"POST",headers:{Prefer:"resolution=ignore-duplicates"},
       body:JSON.stringify({member_idx:i,period:p,day:d})});
     else await sb(`odop_checks?member_idx=eq.${i}&period=eq.${p}&day=eq.${d}`,{method:"DELETE"});
-  }catch{ toast("Gagal menyimpan, coba lagi"); muat(); }
+  }catch(e){ toast("Gagal menyimpan ke server \u2014 coba lagi"); muat(); }
 }
 
 /* ---------- teks WA ---------- */
